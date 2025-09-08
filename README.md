@@ -2,7 +2,7 @@
 
 This is a group project for CEN4090L.
 
-Group Members
+## Group Members
   - Matthew Cegala
   - Nicholas Holguin
   - Matthew Hummel
