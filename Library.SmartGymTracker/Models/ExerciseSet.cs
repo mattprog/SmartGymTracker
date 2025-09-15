@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Library.SmartGymTracker.Models
 {
-    public class ExerciseSet
+    public abstract class ExerciseSet
     {
         public int ExerciseSetId { get; set; }
         public int WorkoutId { get; set; }

@@ -10,6 +10,7 @@ namespace Library.SmartGymTracker.Models
     {
         public int ExerciseId { get; set; }
         public int MuscleId { get; set; }
+        public string ExerciseName { get; set; }
         public string Description { get; set; }
 
         // Default Constructor
@@ -17,6 +18,7 @@ namespace Library.SmartGymTracker.Models
         {
             ExerciseId = -1;
             MuscleId = -1;
+            ExerciseName = string.Empty;
             Description = string.Empty;
         }
 
@@ -25,6 +27,7 @@ namespace Library.SmartGymTracker.Models
         {
             ExerciseId = e.ExerciseId;
             MuscleId = e.MuscleId;
+            ExerciseName = e.ExerciseName;
             Description = e.Description;
         }
     }

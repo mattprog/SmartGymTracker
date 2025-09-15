@@ -11,7 +11,7 @@ namespace Library.SmartGymTracker.Models
         public int WorkoutTypeId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string DifficultyLevel { get; set; }
+        public string Difficulty { get; set; }
 
         // Default Constructor
         public WorkoutType()
@@ -19,7 +19,7 @@ namespace Library.SmartGymTracker.Models
             WorkoutTypeId = -1;
             Name = string.Empty;
             Description = string.Empty;
-            DifficultyLevel = string.Empty;
+            Difficulty = string.Empty;
         }
 
         // Copy Constructor
@@ -28,7 +28,7 @@ namespace Library.SmartGymTracker.Models
             WorkoutTypeId = wt.WorkoutTypeId;
             Name = wt.Name;
             Description = wt.Description;
-            DifficultyLevel = wt.DifficultyLevel;
+            Difficulty = wt.Difficulty;
         }
     }
 }

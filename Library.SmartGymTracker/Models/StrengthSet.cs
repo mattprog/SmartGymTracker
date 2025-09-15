@@ -10,20 +10,20 @@ namespace Library.SmartGymTracker.Models
     {
         public int SetNumber { get; set; }
         public double Weight { get; set; }
-        public int Repetitions { get; set; }
+        public int Reps { get; set; }
 
         public StrengthSet()
         {
             SetNumber = -1;
             Weight = -1;
-            Repetitions = -1;
+            Reps = -1;
         }
 
         public StrengthSet(StrengthSet cs) : base(cs)
         {
             SetNumber = cs.SetNumber;
             Weight = cs.Weight;
-            Repetitions = cs.Repetitions;
+            Reps = cs.Reps;
         }
     }
 }
