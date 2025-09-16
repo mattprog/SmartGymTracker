@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import { FaUser, FaDumbbell, FaPlus } from 'react-icons/fa';
 import './App.css';
+import Workout from './WorkoutPage';
+import Profile from './Profile';
+import Biometric from './Biometric';
+import Progress from './Progress'; 
+
 
 function App() {
   // controls if the bar shows
   const [showBars, setShowBars] = useState(true);
 
-  // Example: profile page toggle
-  const [currentPage, setCurrentPage] = useState('dashboard'); // dashboard, profile, workout, etc
+ // dashboard, profile, workout, etc
+  const [currentPage, setCurrentPage] = useState('dashboard'); 
 
   //decide whether or not to show bars
   const displayBars = currentPage !== 'profile';
@@ -23,14 +28,19 @@ function App() {
         </div>
       )}
 
+
+
       {/* Main Content */}
       <div className="flex-1 p-6">
         {currentPage === 'dashboard' && <div>Dashboard Content</div>}
-        {currentPage === 'profile' && <div>Profile Page Content</div>}
-        {currentPage === 'workout' && <div>Workout Entry Page</div>}
-        {currentPage === 'biometric' && <div>Biometric Data Page</div>}
-        {currentPage === 'progress' && <div>Progress Page</div>}
+        {currentPage === 'profile' && <Profile/>}
+        {currentPage === 'workout' && <Workout />}
+        {currentPage === 'biometric' && <Biometric/>}
+        {currentPage === 'progress' && <Progress/>}
       </div>
+
+
+
 
       {/* Bottom Blue Bar */}
       {displayBars && (
@@ -54,6 +64,8 @@ function App() {
         </div>
       )}
     </div>
+
+
   );
 }
 
