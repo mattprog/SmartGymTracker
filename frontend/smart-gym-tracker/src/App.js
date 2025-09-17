@@ -3,7 +3,7 @@ import { FaUser, FaDumbbell, FaPlus } from 'react-icons/fa';
 import './App.css';
 import Workout from './WorkoutPage';
 import Profile from './Profile';
-import Biometric from './Biometric';
+import BiometricPage from './BiometricPage';
 import Progress from './Progress'; 
 
 
@@ -35,7 +35,7 @@ function App() {
         {currentPage === 'dashboard' && <div>Dashboard Content</div>}
         {currentPage === 'profile' && <Profile/>}
         {currentPage === 'workout' && <Workout />}
-        {currentPage === 'biometric' && <Biometric/>}
+        {currentPage === 'biometric' && <BiometricPage/>}
         {currentPage === 'progress' && <Progress/>}
       </div>
 
