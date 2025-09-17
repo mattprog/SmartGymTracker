@@ -12,7 +12,7 @@ public class ExercisesController : ControllerBase
 
     public ExercisesController(IExerciseService svc)
     {
-        _svc = svc; // if this shows "out of scope", check the using above + DI registration in Program.cs
+        _svc = svc; 
     }
 
     // GET api/exercises?q=press&muscle=chest&equipment=barbell&category=strength

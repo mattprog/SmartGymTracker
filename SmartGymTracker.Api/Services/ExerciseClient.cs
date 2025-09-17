@@ -28,7 +28,6 @@ public sealed class ExerciseClient(HttpClient http) : IExerciseClient
         var res = await http.SendAsync(req, ct);
         res.EnsureSuccessStatusCode();
 
-        // ✅ Use source-generated type info instead of reflection
         var data = await res.Content.ReadFromJsonAsync(
             ExerciseJsonContext.Default.ListExercise,
             cancellationToken: ct
