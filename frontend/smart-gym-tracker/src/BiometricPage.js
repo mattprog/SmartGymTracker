@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import BiometricEntryCard from './biometriccomponents/BiometricEntryCard';
+
 
 function BiometricPage() {
   const [biometrics, setBiometrics] = useState({
@@ -118,20 +120,10 @@ function BiometricPage() {
       </div>
 
       {/* History */}
-      {history.length > 0 && (
-        <div className="space-y-4">
-          {history.map((entry, index) => (
-            <div key={index} className="bg-white shadow-md rounded p-4 space-y-1">
-              <div><strong>Date:</strong> {entry.DateEntered}</div>
-              <div><strong>Weight:</strong> {entry.Weight} lbs</div>
-              <div><strong>Height:</strong> {entry.Height} in</div>
-              <div><strong>Body Fat:</strong> {entry.BodyFatPercentage}%</div>
-              <div><strong>BMI:</strong> {entry.BMI}</div>
-              <div><strong>Resting Heart Rate:</strong> {entry.RestingHeartRate} bpm</div>
-            </div>
-          ))}
-        </div>
-      )}
+      {history.length > 0 && history.map((entry, index) => (
+  <BiometricEntryCard key={index} entry={entry} />
+))}
+
     </div>
   );
 }
