@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import BiometricEntryCard from './biometriccomponents/BiometricEntryCard';
+import BiometricEntryCard from '../biometriccomponents/BiometricEntryCard';
 
 
 function BiometricPage() {

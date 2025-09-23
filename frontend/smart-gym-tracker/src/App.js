@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { FaUser, FaDumbbell, FaPlus } from 'react-icons/fa';
+import { FaUser, FaDumbbell, FaPlus, FaHeart, FaChartLine } from 'react-icons/fa';
 import './App.css';
-import Workout from './WorkoutPage';
-import Profile from './Profile';
-import BiometricPage from './BiometricPage';
-import Progress from './Progress'; 
+import WorkoutPage from './pages/WorkoutPage';
+import BiometricPage from './pages/BiometricPage';
+import Profile from './pages/Profile';
+import Progress from './pages/Progress';
+import Admin from './pages/Admin';
+
+
 
 
 function App() {
@@ -34,10 +37,12 @@ function App() {
       <div className="flex-1 p-6">
         {currentPage === 'dashboard' && <div>Dashboard Content</div>}
         {currentPage === 'profile' && <Profile/>}
-        {currentPage === 'workout' && <Workout />}
+        {currentPage === 'workout' && <WorkoutPage/>}
         {currentPage === 'biometric' && <BiometricPage/>}
         {currentPage === 'progress' && <Progress/>}
+        {currentPage === 'admin' && <Admin/>}
       </div>
+
 
 
 
@@ -45,11 +50,16 @@ function App() {
       {/* Bottom Blue Bar */}
       {displayBars && (
         <div className="bg-blue-600 text-white flex items-center justify-around px-4 py-3 shadow-inner">
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('biometric')}>
-            <div className="w-6 h-6 bg-gray-200 rounded-full mb-1"></div>
-            <span className="text-sm">Biometric Data</span>
-          </div>
 
+
+         {/* Biometric Data */}
+         <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('biometric')}>
+         <FaHeart size={24} className="mb-1" />
+         <span className="text-sm">Biometrics</span>
+        </div>
+
+
+              {/* Add Workout */}
           <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('workout')}>
             <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center mb-1">
               <FaPlus size={24} />
@@ -57,10 +67,22 @@ function App() {
             <span className="text-sm">Add Workout</span>
           </div>
 
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('progress')}>
+
+
+            {/* Progress/Milestones */}
+         <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('progress')}>
+         <FaChartLine size={24} className="mb-1" />
+          <span className="text-sm">Progress</span>
+         </div>
+
+
+           {/* Temporary Admin Button */}
+           <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('admin')}>
             <div className="w-6 h-6 bg-gray-200 rounded-full mb-1"></div>
-            <span className="text-sm">Progress</span>
+            <span className="text-sm">Temp Admin</span>
           </div>
+
+
         </div>
       )}
     </div>

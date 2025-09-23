@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Workout } from "./models/Workout";
-import { Muscle } from "./models/Muscle";
-import { StrengthSet } from "./models/StrengthSet";
-import { CardioSet } from "./models/CardioSet";
-import WorkoutForm from "./workoutcomponents/WorkoutForm";
-import CurrentSets from "./workoutcomponents/CurrentSets";
-import WorkoutHistory from "./workoutcomponents/WorkoutHistory";
+import { Workout } from "../models/Workout";
+import { Muscle } from "../models/Muscle";
+import { StrengthSet } from "../models/StrengthSet";
+import { CardioSet } from "../models/CardioSet";
+import WorkoutForm from "../workoutcomponents/WorkoutForm";
+import CurrentSets from "../workoutcomponents/CurrentSets";
+import WorkoutHistory from "../workoutcomponents/WorkoutHistory";
 
 const sampleMuscles = [
   new Muscle({ MuscleId: 1, Name: "Chest" }),

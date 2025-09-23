@@ -1,5 +1,5 @@
 import React from "react";
-import WorkoutHistoryEntry from "./WorkoutHistoryEntry";
+import WorkoutEntryCard from "./WorkoutEntryCard";
 
 const WorkoutHistory = ({ completedWorkouts }) => {
   const sectionStyle = {
@@ -15,7 +15,7 @@ const WorkoutHistory = ({ completedWorkouts }) => {
       <h3>Workout History:</h3>
       <div style={{ maxHeight: "300px", overflowY: "auto" }}>
         {completedWorkouts.map((workout, idx) => (
-          <WorkoutHistoryEntry key={idx} workout={workout} />
+          <WorkoutEntryCard key={idx} workout={workout} />
         ))}
       </div>
     </div>
