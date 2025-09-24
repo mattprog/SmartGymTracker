@@ -1,6 +1,6 @@
 # Database Setup Instruction
 1. Go to inport section of MYSQL
-2. Import on `Project_DDLScript.sql`
+2. Import `Project_DDLScript.sql`
     - This will create the schema with blank tables
 Now the database will be open on port 3306 for communication
 
