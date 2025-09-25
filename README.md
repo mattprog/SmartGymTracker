@@ -38,10 +38,10 @@ This is a group project for CEN4090L.
 * Admin login
     * Admin specific pages
     * User Management Page
-* Milestone and Progress Tracking
 
 ### Increment 3 Features:
 
 * Smart Tips and Suggestions
 * Trends of Data
 * Notifications
+* Milestone and Progress Tracking
