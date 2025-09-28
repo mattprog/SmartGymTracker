@@ -12,7 +12,9 @@ This is a group project for CEN4090L.
 ## Increment Release Plan
 ### Increments 1 Features:
 
-* Create input forms that communicate with backend and database
+* Create much of the documentation for the project
+* Provide shells of the frontend, backend, and database
+* Create the framework for class libraries that include the following:
     * Workout
     * Sets
         * Strength Set
@@ -27,6 +29,7 @@ This is a group project for CEN4090L.
 
 ### Increment 2 Features:
 
+* Get the frontend, backend, and database communicating
 * Users and Identity Management (IDM)
 * Login Screen
     * Creates new user
@@ -35,10 +38,10 @@ This is a group project for CEN4090L.
 * Admin login
     * Admin specific pages
     * User Management Page
-* Milestone and Progress Tracking
 
 ### Increment 3 Features:
 
 * Smart Tips and Suggestions
 * Trends of Data
 * Notifications
+* Milestone and Progress Tracking
