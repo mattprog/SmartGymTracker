@@ -2,6 +2,8 @@
 
 This is a group project for CEN4090L.
 
+Smart Gym Tracker is a web-based fitness tracking application that lets users log workouts, record biometric data, track milestones, and view trends. Smart Gym Tracker utilizes a React + Tailwind CSS frontend, C# backend, and a MySQL database to create a simple but powerful gym tracker app that allows users to simply enter their workout data and see trends. 
+
 ### Group Members
   * Matthew Cegala
   * Nicholas Holguin
@@ -45,3 +47,33 @@ This is a group project for CEN4090L.
 * Trends of Data
 * Notifications
 * Milestone and Progress Tracking
+
+## File Structure Notes
+### Documentation (Including IT, RD, and Progress Report)
+```
+├── Documentation.SmartGymTracker
+│
+├── README.md
+```
+### General Folders
+```
+├── Documentation.SmartGymTracker
+```
+### Frontend Folders
+```
+├── frontend/smart-gym-tracker
+```
+### Backend Folders
+```
+├── SmartGymTracker.Api
+│
+├── SmartGymTracker.Metrics.API
+```
+### Database Folders
+```
+├── Library.SmartGymTracker
+```
+
+## Known Bugs
+* Currently none at this time, all code builds.
+* In Increment 1 most of code was frameworks and system skeletons with little emphasis on communication and working code.
