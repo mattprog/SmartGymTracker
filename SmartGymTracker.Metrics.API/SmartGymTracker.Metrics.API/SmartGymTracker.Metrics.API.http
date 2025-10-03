@@ -1,0 +1,9 @@
+@SmartGymTracker.Metrics.API_HostAddress = http://localhost:5153
+
+GET {{SmartGymTracker.Metrics.API_HostAddress}}/todos/
+Accept: application/json
+
+GET {{SmartGymTracker.Metrics.API_HostAddress}}/todos/1
+Accept: application/json
+
+###
