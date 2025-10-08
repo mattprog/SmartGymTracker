@@ -6,6 +6,9 @@ import BiometricPage from './pages/BiometricPage';
 import Profile from './pages/Profile';
 import Progress from './pages/Progress';
 import Admin from './pages/Admin';
+import RegistrationPage from './pages/RegistrationPage';
+import LoginPage from './pages/LoginPage';
+
 
 
 
@@ -41,6 +44,8 @@ function App() {
         {currentPage === 'biometric' && <BiometricPage/>}
         {currentPage === 'progress' && <Progress/>}
         {currentPage === 'admin' && <Admin/>}
+        {currentPage === 'registration' && <RegistrationPage />}
+        {currentPage === 'login' && <LoginPage />}
       </div>
 
 
@@ -82,6 +87,17 @@ function App() {
             <span className="text-sm">Temp Admin</span>
           </div>
 
+          {/* Temporary Registration Button */}
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('registration')}>
+          <div className="w-6 h-6 bg-gray-200 rounded-full mb-1"></div>
+          <span className="text-sm">Register</span>
+          </div>
+
+          {/* Temporary Login Button */}
+        <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('login')}>
+        <div className="w-6 h-6 bg-gray-200 rounded-full mb-1"></div>
+        <span className="text-sm">Login</span>
+        </div>
 
         </div>
       )}
