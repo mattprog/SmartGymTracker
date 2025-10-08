@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const LoginPage = () => {
+const LoginPage = ({ setCurrentPage }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -10,7 +10,6 @@ const LoginPage = () => {
       setMessage("Please enter both username and password.");
       return;
     }
-    // For now, just log to console
     console.log("Login attempt:", { username, password });
     setMessage("Login attempted! (Check console for details)");
   };
@@ -47,9 +46,17 @@ const LoginPage = () => {
           Forgot Password?
         </button>
       </div>
+      <p className="text-sm mt-2">
+        Don't have an account?{" "}
+        <span
+          onClick={() => setCurrentPage("registration")}
+          className="text-blue-600 underline cursor-pointer"
+        >
+          Sign up
+        </span>
+      </p>
     </div>
   );
 };
 
 export default LoginPage;
-

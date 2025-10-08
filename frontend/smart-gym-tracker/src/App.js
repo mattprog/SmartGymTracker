@@ -45,7 +45,7 @@ function App() {
         {currentPage === 'progress' && <Progress/>}
         {currentPage === 'admin' && <Admin/>}
         {currentPage === 'registration' && <RegistrationPage />}
-        {currentPage === 'login' && <LoginPage />}
+        {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} />}
       </div>
 
 
