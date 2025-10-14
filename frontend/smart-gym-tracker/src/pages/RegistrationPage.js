@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const RegistrationPage = () => {
+const RegistrationPage = ({ setCurrentPage }) => {
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -17,9 +17,21 @@ const RegistrationPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  
   const handleRegister = () => {
-    // placeholder: will connect to backend later
-    alert(`Registering user: ${formData.username}`);
+    // Mock validation
+    if (!formData.username || !formData.password || !formData.email) {
+      alert("Please fill in username, email, and password.");
+      return;
+    }
+  
+    // ----- MOCK REGISTRATION -----
+    alert(`User "${formData.username}" created successfully!`);
+    
+    // Redirect to login page
+    setCurrentPage("login");
+  
+    // Reset form
     setFormData({
       firstname: "",
       lastname: "",
@@ -32,6 +44,61 @@ const RegistrationPage = () => {
       height: "",
     });
   };
+  
+ /* const handleRegister = async () => {
+    // validate required fields
+    if (!formData.username || !formData.password || !formData.email) {
+      alert("Please fill in username, email, and password.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/Register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          email: formData.email,
+          firstname: formData.firstname,
+          lastname: formData.lastname,
+          phone_number: formData.phone,
+          dateofbirth: formData.dateofbirth,
+          weight: parseInt(formData.weight),
+          height: parseInt(formData.height),
+        }),
+      });
+
+      if (response.ok) {
+        alert("Registration successful!");
+        // Redirect to login page
+        setCurrentPage("login");
+
+        setFormData({
+          firstname: "",
+          lastname: "",
+          email: "",
+          username: "",
+          password: "",
+          phone: "",
+          dateofbirth: "",
+          weight: "",
+          height: "",
+        });
+      } else {
+        const text = await response.text();
+        alert(`Registration failed: ${text}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while registering.");
+    }
+  };
+
+*/
+
+
+
 
   return (
     <div className="bg-white shadow-md rounded p-6 mb-6 max-w-md mx-auto mt-10">

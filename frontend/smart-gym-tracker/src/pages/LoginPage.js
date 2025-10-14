@@ -5,14 +5,49 @@ const LoginPage = ({ setCurrentPage }) => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      setMessage("Please enter both username and password.");
-      return;
+
+    
+    const handleLogin = async () => {
+      if (!username || !password) {
+        setMessage("Please enter both username and password.");
+        return;
+      }
+    
+      // ----- MOCK LOGIN -----
+      if (username === "admin" && password === "password") {
+        setMessage("Login successful!");
+        setCurrentPage("dashboard"); // redirect to dashboard
+      } else {
+        setMessage("Login failed: Invalid username or password");
+      }
+    };
+    
+
+
+
+
+    
+    /*try {
+      const response = await fetch("/api/User", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      if (response.ok) {
+        setMessage("Login successful!");
+        setCurrentPage("dashboard"); // redirect to dashboard for now
+      } else {
+        const text = await response.text();
+        setMessage(`Login failed: ${text}`);
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("An error occurred while logging in.");
     }
-    console.log("Login attempt:", { username, password });
-    setMessage("Login attempted! (Check console for details)");
   };
+*/
+
 
   return (
     <div className="bg-white shadow-md rounded p-6 max-w-md mx-auto mt-10">

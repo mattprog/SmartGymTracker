@@ -46,7 +46,8 @@ function App() {
         {currentPage === 'biometric' && <BiometricPage/>}
         {currentPage === 'progress' && <Progress/>}
         {currentPage === 'admin' && <Admin/>}
-        {currentPage === 'registration' && <RegistrationPage />}
+        {currentPage === 'registration' &&
+       <RegistrationPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'usermanagement' && <UserManagement />}
       </div>
