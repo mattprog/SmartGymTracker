@@ -3,8 +3,6 @@ using MySql.Data.MySqlClient;
 
 namespace MySQL.SmartGymTracker
 {
-    // NOTE filebase does not check if directory exsits
-    //   Assumes that the directory exists
     public class User_DB
     {
         private readonly Database _db;
@@ -14,204 +12,257 @@ namespace MySQL.SmartGymTracker
             _db = new DB();
         }
 
-        public List<User> GetAllUsers()
+        public List<User> GetAll()
         {
             string sql = "SELECT * FROM users";
             var dbreturn = _db.ExecuteSelect(sql);
-            List<User> users = new List<User>();
-            // TODO convert DataTable to List<User>
+            List<User> users = DataTableToList(dbreturn);
             return users;
         }
 
-        public User? AddUser(User user)
+        public User? Add(User user)
         {
-            // TODO setup for real user
-            string sql = "INSERT INTO users (username, email, password_hash) VALUES (@username, @email, @password_hash)";
+            // Get updated records include all values
+            // Return if no valid user id
+            if (string.IsNullOrEmpty(user.username))
+                return null;
+
+            // Perform update query
+            var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(user);
+            if(columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
+                return null;
+            string sql = $"INSERT INTO users ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
+            _db.ExecuteNonQuery(sql, parametersList);
+
+            // Get added record
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username";
             var parameters = new MySqlParameter[]
             {
-                new MySqlParameter("@username", user.Username),
-                new MySqlParameter("@email", user.Email),
-                new MySqlParameter("@password_hash", user.PasswordHash)
+                new MySqlParameter("@username", user.Username)
             };
-            _db.ExecuteNonQuery(sql, parameters);
-
-            // Get updated records include all values
-            string selectSql = "SELECT * FROM users WHERE username = @username";
             var result = _db.ExecuteSelect(selectSql, parameters);
 
             if (result.Rows.Count > 0)
             {
-                // TODO convert to User
-                return result.Rows[0];
+                var val = DataTableToList(result);
+                if(val.Rows.Count > 0)
+                {
+                    return val[0];
+                }
             }
             return null;
         }
 
-        public List<User> UpdateUser(User user)
+        public User? Update(User user)
         {
-            // TODO setup for real user, get non NULL
-            string sql = "UPDATE users SET username = @username, email = @email, password_hash = @password_hash WHERE id = @id";
+            // Return if no valid user id
+            if (user.UserId <= 0)
+                return null;
+            
+            // Perform update query
+            var (updateQueries, parametersList) = BuildUpdateQueryList(user);
+            parametersList.Add(new MySqlParameter("@userId", user.UserId));
+            string sql = $"UPDATE users SET {string.Join(", ", updateQueries)} WHERE userId = @userId;";
+            _db.ExecuteNonQuery(sql, parametersList);
+
+            // Get updated record
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId";
             var parameters = new MySqlParameter[]
             {
-                new MySqlParameter("@username", user.Username),
-                new MySqlParameter("@email", user.Email),
-                new MySqlParameter("@password_hash", user.PasswordHash),
-                new MySqlParameter("@id", user.Id)
+                new MySqlParameter("@userId", user.UserId)
             };
-            _db.ExecuteNonQuery(sql, parameters);
-
-            string selectSql = "SELECT * FROM users WHERE id = @id";
             var result = _db.ExecuteSelect(selectSql, parameters);
-            if(result.Rows.Count > 0)
+
+            if (result.Rows.Count > 0)
             {
-                // TODO convert to User
-                List<User> users = new List<User>();
-                return users;
+                var val = DataTableToList(result);
+                if (val.Rows.Count > 0)
+                {
+                    return val[0];
+                }
             }
             return null;
         }
 
-        public List<User> DeleteUser(int userId)
+        public User? Delete(int userId)
         {
-            // TODO setup for real user, get non NULL
-            string sqlSelect = "SELECT * FROM users WHERE id = @id";
+            if(userId <= 0)
+                return;
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId";
             var parameters = new MySqlParameter[]
             {
-                new MySqlParameter("@id", userId)
+                new MySqlParameter("@userId", userId)
             };
-            var result = _db.ExecuteSelect(sqlSelect, paramaters);
+            var result = _db.ExecuteSelect(selectSql, parameters);
+            
             if(result.Rows.Count == 0)
             {
                 // User not found
-                return;
+                return null;
             }
-            // TODO convert to User if needed
-            List<User> users = new List<User_DB>();
 
-            string sql = "DELETE FROM users WHERE id = @id";
+            string sql = "DELETE FROM users WHERE userId = @userId";
             _db.ExecuteNonQuery(sql, parameters);
 
+            var val = DataTableToList(result);
+            if (val.Rows.Count > 0)
+            {
+                return val[0];
+            }
+            return null;
+        }
+
+        public User? Login(string username, string password)
+        {
+            if (userId <= 0)
+                return null;
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username AND password = @password";
+            var parameters = new MySqlParameter[]
+            {
+                new MySqlParameter("@username", username),
+                new MySqlParameter("@password", password)
+            };
+            var result = _db.ExecuteSelect(selectSql, parameters);
+            if (result.Rows.Count > 0)
+            {
+                var val = DataTableToList(result);
+                if (val.Rows.Count > 0)
+                {
+                    return val[0];
+                }
+            }
+            return null;
+        }
+
+        public List<User> DataTableToList(Datatable t)
+        {
+            List<User> users = new List<User>();
+            foreach (DataRow row in t.Rows)
+            {
+                User user = new User
+                {
+                    UserId = Convert.ToInt32(row["userId"]),
+                    Username = Convert.ToString(row["username"]),
+                    FirstName = Convert.ToString(row["firstName"]),
+                    LastName = Convert.ToString(row["lastName"]),
+                    Email = Convert.ToString(row["email"]),
+                    PhoneNumber = Convert.ToString(row["phoneNumber"]),
+                    DateOfBirth = Convert.ToDateTime(row["dateOfBirth"]),
+                    Gender = Convert.ToString(row["gender"])
+                };
+                users.Add(user);
+            }
             return users;
         }
-    }
-}
 
-/*
-        private string _dir;
-        private string _inventoryRoot;
-        private static InventoryFilebase? _instance;
-
-
-        /*
-         * Makes filebase a singlton
-         
-public static InventoryFilebase Current
-{
-    get
-    {
-        if (_instance == null)
+        public (List<string> query, List<MySqlParameter> parameters) BuildUpdateQueryList(User user)
         {
-            _instance = new InventoryFilebase();
-        }
+            User defaultUser = new User();
+            List<string> querys = new List<string>;
+            List<MySqlParameter> parameters = new List<MySqlParameters>();
 
-        return _instance;
-    }
-}
-
-
-/*
- * Constructor that gets location to save files
- 
-private InventoryFilebase()
-{
-    _dir = Directory.GetCurrentDirectory() + "\\Database\\Filebase\\";
-    _inventoryRoot = $"{_dir}\\Inventory";
-}
-
-
-/*
- * For creating unique sku number
- 
-public int LastKey
-{
-    get
-    {
-        if (Inventory.Any())
-        {
-            return Inventory.Select(x => x.Sku).Max();
-        }
-        return 0;
-    }
-}
-
-
-/*
- * For creating new product or updating existing product
- 
-public Product AddOrUpdate(Product product)
-{
-    //set up a new Id if one doesn't already exist
-    if (product.Sku <= 0)
-    {
-        product.Sku = LastKey + 1;
-    }
-
-    //Go to filepath of specified product
-    string path = $"{_inventoryRoot}\\{product.Sku}.json";
-
-
-    //If product already existed delete it for updating
-    if (File.Exists(path))
-    {
-        File.Delete(path);
-    }
-
-    //Create the new/updated product file
-    File.WriteAllText(path, JsonConvert.SerializeObject(product));
-
-    //return the product, which now has an unique id
-    return product;
-}
-
-
-/*
- * For returning all products in inventory
- 
-public List<Product> Inventory
-{
-    get
-    {
-        var root = new DirectoryInfo(_inventoryRoot);
-        var _products = new List<Product>();
-        foreach (var productFile in root.GetFiles())
-        {
-            var product = JsonConvert
-                .DeserializeObject<Product>
-                (File.ReadAllText(productFile.FullName));
-            if (product != null)
+            if (user.Username != defaultUser.Username)
             {
-                _products.Add(product);
+                updates.Add("username = @username");
+                parameters.Add(new MySqlParameter("@username", user.Username));
             }
+
+            if(user.FirstName != defaultUser.FirstName)
+            {
+                updates.Add("firstName = @firstName");
+                parameters.Add(new MySqlParameter("@firstName", user.FirstName));
+            }
+
+            if(user.LastName != defaultUser.LastName)
+            {
+                updates.Add("lastName = @lastName");
+                parameters.Add(new MySqlParameter("@lastName", user.LastName));
+            }
+
+            if(user.email != defaultUser.Email)
+            {
+                updates.Add("email = @email");
+                parameters.Add(new MySqlParameter("@email", user.Email));
+            }
+
+            if(user.phoneNumber != defaultUser.PhoneNumber)
+            {
+                updates.Add("phoneNumber = @phoneNumber");
+                parameters.Add(new MySqlParameter("@phoneNumber", user.PhoneNumber));
+            }
+
+            if(user.dateOfBirth != defaultUser.DateOfBirth)
+            {
+                updates.Add("dateOfBirth = @dateOfBirth");
+                parameters.Add(new MySqlParameter("@dateOfBirth", user.DateOfBirth));
+            }
+
+            if(user.gender != defaultUser.Gender)
+            {
+                updates.Add("gender = @gender");
+                parameters.Add(new MySqlParameter("@gender", user.Gender));
+            }
+
+            return (querys, parameters);
         }
-        return _products;
+
+        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildInsertQueryList(User user)
+        {
+            User defaultUser = new User();
+            List<string> cols = new List<string>();
+            List<string> vals = new List<string>();
+            List<MySqlParameter> parameters = new List<MySqlParameters>();
+
+            if (user.Username != defaultUser.Username)
+            {
+                cols.Add("username");
+                vals.Add("@username");
+                parameters.Add(new MySqlParameter("@username", user.Username));
+            }
+
+            if (user.FirstName != defaultUser.FirstName)
+            {
+                cols.add("firstName");
+                vals.add("@firstName");
+                parameters.Add(new MySqlParameter("@firstName", user.FirstName));
+            }
+
+            if (user.LastName != defaultUser.LastName)
+            {
+                cols.Add("lastName");
+                vals.Add("@lastName");
+                parameters.Add(new MySqlParameter("@lastName", user.LastName));
+            }
+
+            if (user.email != defaultUser.Email)
+            {
+                cols.Add("email");
+                vals.Add("@email");
+                parameters.Add(new MySqlParameter("@email", user.Email));
+            }
+
+            if (user.phoneNumber != defaultUser.PhoneNumber)
+            {
+                cols.Add("phoneNumber");
+                vals.Add("@phoneNumber");
+                parameters.Add(new MySqlParameter("@phoneNumber", user.PhoneNumber));
+            }
+
+            if (user.dateOfBirth != defaultUser.DateOfBirth)
+            {
+                cols.Add("dateOfBirth");
+                vals.Add("@dateOfBirth");
+                parameters.Add(new MySqlParameter("@dateOfBirth", user.DateOfBirth));
+            }
+
+            if (user.gender != defaultUser.Gender)
+            {
+                cols.Add("gender");
+                vals.Add("@gender");
+                parameters.Add(new MySqlParameter("@gender", user.Gender));
+            }
+
+            return (cols, vals, parameters);
+        }
     }
 }
-
-
-/*
- * Find product in filebase by id and delete it if id exists
- 
-public Product? Delete(int sku)
-{
-    //Go to filepath of specified product
-    string path = $"{_inventoryRoot}\\{sku}.json";
-
-    //Find file and delete it
-    if (!File.Exists(path))
-    {
-        return null;
-    }
-    var deletedProd = Inventory.FirstOrDefault(i => i.Sku == sku);
-    File.Delete(path);
-    return deletedProd;
-*/
