@@ -1,21 +1,24 @@
 using System.Data;
+using Library.SmartGymTracker.Models;
 using MySql.Data.MySqlClient;
 
 namespace MySQL.SmartGymTracker
 {
-    public class Biometrics_DB
+    public class ExerciseBiometrics_DB
     {
-        private readonly Database _db;
+        private readonly DB db = new DB();
 
-        public Biometrics_DB()
+        public ExerciseBiometrics_DB() { }
+
+        public string getLastErrorMessage()
         {
-            _db = new DB();
+            return db.ErrorMessage;
         }
 
-        public List<Biometrics> GetAll()
+        public List<WorkoutBiometrics> GetAll()
         {
             string sql = "SELECT * FROM workoutbiometrics";
-            var dbreturn = _db.ExecuteSelect(sql);
+            var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<WorkoutBiometrics> biometrics = DataTableToList(dbreturn);
             return biometrics;
         }
@@ -23,21 +26,21 @@ namespace MySQL.SmartGymTracker
         public WorkoutBiometrics? Add(WorkoutBiometrics biometrics)
         {
             // Perform update query
-            var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(workout);
+            var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(biometrics);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
-                return;
+                return null;
             string sql = $"INSERT INTO workoutbiometrics ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            _db.ExecuteNonQuery(sql, parametersList);
+            db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
-            var (queries, parametersList) = BuildUpdateQueryList(biometrics);
-            string sql = $"SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE {string.Join(" AND ", queries)};";
-            _db.ExecuteNonQuery(sql, parametersList);
+            var (queries, selparametersList) = BuildUpdateQueryList(biometrics);
+            string selectsql = $"SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE {string.Join(" AND ", queries)};";
+            var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)
             {
                 var val = DataTableToList(result);
-                if (val.Rows.Count > 0)
+                if (val.Count > 0)
                 {
                     return val.Last();
                 }
@@ -45,29 +48,29 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
-        public Biometrics? Update(Biometrics biometrics)
+        public WorkoutBiometrics? Update(WorkoutBiometrics biometrics)
         {
             // Return if no valid user id
-            if (biometrics.Biometrics <= 0)
+            if (biometrics.WorkoutId <= 0)
                 return null;
 
             // Perform update query
-            var (updateQueries, parametersList) = BuildUpdateQueryList(user);
-            parametersList.Add(new MySqlParameter("@biometricsId", biometrics.BiometricsId));
+            var (updateQueries, parametersList) = BuildUpdateQueryList(biometrics);
+            parametersList.Add(new MySqlParameter("@biometricsId", biometrics.WorkoutId));
             string sql = $"UPDATE biometrics SET {string.Join(", ", updateQueries)} WHERE biometricsId = @biometricsId;";
-            _db.ExecuteNonQuery(sql, parametersList);
+            db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
             string selectSql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE workoutId = @workoutId";
-            var parameters = new MySqlParameter[]
+            var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", biometrics.WorkoutId)
             };
-            var result = _db.ExecuteSelect(selectSql, parameters);
+            var result = db.ExecuteSelect(selectSql, parameters);
             if (result.Rows.Count > 0)
             {
                 var val = DataTableToList(result);
-                if (val.Rows.Count > 0)
+                if (val.Count > 0)
                 {
                     return val[0];
                 }
@@ -75,18 +78,18 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
-        public Biometrics? Delete(int biometricsId)
+        public WorkoutBiometrics? Delete(int biometricsId)
         {
             if (biometricsId <= 0)
-                return;
+                return null;
             // Get updated record
             // Get updated record
             string selectSql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE workoutId = @workoutId";
-            var parameters = new MySqlParameter[]
+            var parameters = new List<MySqlParameter>
             {
-                new MySqlParameter("@workoutId", biometrics.WorkoutId)
+                new MySqlParameter("@workoutId", biometricsId)
             };
-            var result = _db.ExecuteSelect(selectSql, parameters);
+            var result = db.ExecuteSelect(selectSql, parameters);
 
             if (result.Rows.Count == 0)
             {
@@ -95,17 +98,17 @@ namespace MySQL.SmartGymTracker
             }
 
             string sql = "DELETE FROM workoutBiometrics WHERE workoutId = @workoutId";
-            _db.ExecuteNonQuery(sql, parameters);
+            db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);
-            if (val.Rows.Count > 0)
+            if (val.Count > 0)
             {
                 return val[0];
             }
             return null;
         }
 
-        public List<WorkoutBiometrics> DataTableToList(Datatable t)
+        public List<WorkoutBiometrics> DataTableToList(DataTable t)
         {
             List<WorkoutBiometrics> biometrics = new List<WorkoutBiometrics>();
             foreach (DataRow row in t.Rows)
@@ -117,7 +120,7 @@ namespace MySQL.SmartGymTracker
                     AverageHeartRate = Convert.ToInt32(row["averageHeartRate"]),
                     MaxHeartRate = Convert.ToInt32(row["maxHeartRate"]),
                     CaloriesBurned = Convert.ToInt32(row["caloriesBurned"]),
-                    Feeling = Convert.ToString(row["feeling"]),
+                    Feeling = Convert.ToString(row["feeling"]) ?? "",
                     SleepScore = Convert.ToInt32(row["sleepScore"])
                 };
                 biometrics.Add(biometric);
@@ -128,8 +131,8 @@ namespace MySQL.SmartGymTracker
         public (List<string> query, List<MySqlParameter> parameters) BuildUpdateQueryList(WorkoutBiometrics biometrics)
         {
             WorkoutBiometrics defaultBiometrics = new WorkoutBiometrics();
-            List<string> querys = new List<string>;
-            List<MySqlParameter> parameters = new List<MySqlParameters>();
+            List<string> querys = new List<string>();
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
 
             if(biometrics.WorkoutId != defaultBiometrics.WorkoutId)
             {
@@ -170,12 +173,12 @@ namespace MySQL.SmartGymTracker
             return (querys, parameters);
         }
 
-        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildUpdateQueryList(WorkoutBiometrics biometrics)
+        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildInsertQueryList(WorkoutBiometrics biometrics)
         {
             WorkoutBiometrics defaultBiometrics = new WorkoutBiometrics();
             List<string> cols = new List<string>();
             List<string> vals = new List<string>();
-            List<MySqlParameter> parameters = new List<MySqlParameters>();
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
 
             if(biometrics.WorkoutId != defaultBiometrics.WorkoutId)
             {

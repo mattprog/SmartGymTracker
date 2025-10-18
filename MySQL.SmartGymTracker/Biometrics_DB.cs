@@ -6,9 +6,14 @@ namespace MySQL.SmartGymTracker
 {
     public class Biometrics_DB
     {
-        private DB db = new DB();
+        private readonly DB db = new DB();
 
         public Biometrics_DB() { }
+
+        public string getLastErrorMessage()
+        {
+            return db.ErrorMessage;
+        }
 
         public List<Biometrics> GetAll()
         {
@@ -81,11 +86,11 @@ namespace MySQL.SmartGymTracker
                 return null;
             // Get updated record
             string selectSql = "SELECT biometricsId, userId, dateEntered, weight, height, bodyFatPercentage, bmi, restingHeartRate WHERE biometricsId = @biometricsId";
-            var parameters = new MySqlParameter[]
+            var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@biometricsId", biometricsId)
             };
-            var result = _db.ExecuteSelect(selectSql, parameters);
+            var result = db.ExecuteSelect(selectSql, parameters);
 
             if (result.Rows.Count == 0)
             {
@@ -94,10 +99,10 @@ namespace MySQL.SmartGymTracker
             }
 
             string sql = "DELETE FROM biometrics WHERE biometricsId = @biometricsId";
-            _db.ExecuteNonQuery(sql, parameters);
+            db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);
-            if (val.Rows.Count > 0)
+            if (val.Count > 0)
             {
                 return val[0];
             }

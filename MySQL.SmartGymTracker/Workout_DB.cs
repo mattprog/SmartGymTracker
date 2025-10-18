@@ -1,21 +1,24 @@
 using System.Data;
+using Library.SmartGymTracker.Models;
 using MySql.Data.MySqlClient;
 
 namespace MySQL.SmartGymTracker
 {
     public class Workout_DB
     {
-        private readonly Database _db;
+        private readonly DB db = new DB();
 
-        public Workout_DB()
+        public Workout_DB() { }
+
+        public string getLastErrorMessage()
         {
-            _db = new DB();
+            return db.ErrorMessage;
         }
 
         public List<Workout> GetAll()
         {
             string sql = "SELECT * FROM workout";
-            var dbreturn = _db.ExecuteSelect(sql);
+            var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Workout> workout = DataTableToList(dbreturn);
             return workout;
         }
@@ -25,19 +28,19 @@ namespace MySQL.SmartGymTracker
             // Perform update query
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(workout);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
-                return;
+                return null;
             string sql = $"INSERT INTO workout ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            _db.ExecuteNonQuery(sql, parametersList);
+            db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
-            var (queries, parametersList) = BuildUpdateQueryList(user);
-            string sql = $"SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE {string.Join(" AND ", queries)};";
-            _db.ExecuteNonQuery(sql, parametersList);
+            var (queries, selparametersList) = BuildUpdateQueryList(workout);
+            string selectsql = $"SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE {string.Join(" AND ", queries)};";
+            var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)
             {
                 var val = DataTableToList(result);
-                if (val.Rows.Count > 0)
+                if (val.Count > 0)
                 {
                     return val.Last();
                 }
@@ -52,23 +55,23 @@ namespace MySQL.SmartGymTracker
                 return null;
 
             // Perform update query
-            var (updateQueries, parametersList) = BuildUpdateQueryList(user);
+            var (updateQueries, parametersList) = BuildUpdateQueryList(workout);
             parametersList.Add(new MySqlParameter("@workoutId", workout.WorkoutId));
             string sql = $"UPDATE workout SET {string.Join(", ", updateQueries)} WHERE workoutId = @workoutId;";
-            _db.ExecuteNonQuery(sql, parametersList);
+            db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
             string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout";
-            var parameters = new MySqlParameter[]
+            var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workout.WorkoutId)
             };
-            var result = _db.ExecuteSelect(selectSql, parameters);
+            var result = db.ExecuteSelect(selectSql, parameters);
 
             if (result.Rows.Count > 0)
             {
                 var val = DataTableToList(result);
-                if (val.Rows.Count > 0)
+                if (val.Count > 0)
                 {
                     return val[0];
                 }
@@ -79,14 +82,14 @@ namespace MySQL.SmartGymTracker
         public Workout? Delete(int workoutId)
         {
             if (workoutId <= 0)
-                return;
+                return null;
             // Get updated record
             string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout";
-            var parameters = new MySqlParameter[]
+            var parameters = new List<MySqlParameter>
             {
-                new MySqlParameter("@workoutId", workout.WorkoutId)
+                new MySqlParameter("@workoutId", workoutId)
             };
-            var result = _db.ExecuteSelect(selectSql, parameters);
+            var result = db.ExecuteSelect(selectSql, parameters);
 
             if (result.Rows.Count == 0)
             {
@@ -95,17 +98,17 @@ namespace MySQL.SmartGymTracker
             }
 
             string sql = "DELETE FROM workout WHERE workoutId = @workoutId";
-            _db.ExecuteNonQuery(sql, parameters);
+            db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);
-            if (val.Rows.Count > 0)
+            if (val.Count > 0)
             {
                 return val[0];
             }
             return null;
         }
 
-        public List<Workout> DataTableToList(Datatable t)
+        public List<Workout> DataTableToList(DataTable t)
         {
             List<Workout> workouts = new List<Workout>();
             foreach (DataRow row in t.Rows)
@@ -113,10 +116,10 @@ namespace MySQL.SmartGymTracker
                 Workout workout = new Workout
                 {
                     WorkoutId = Convert.ToInt32(row["workoutId"]),
-                    UserId = Convert.ToString(row["userId"]),
+                    UserId = Convert.ToInt32(row["userId"]),
                     WorkoutStart = Convert.ToDateTime(row["workoutStart"]),
-                    Duration = Convert.ToInt32(row["duration"])
-                    Notes = Convert.ToString(row["notes"])
+                    Duration = Convert.ToInt32(row["duration"]),
+                    Notes = Convert.ToString(row["notes"]) ?? ""
                 };
                 workouts.Add(workout);
             }
@@ -126,65 +129,65 @@ namespace MySQL.SmartGymTracker
         public (List<string> query, List<MySqlParameter> parameters) BuildUpdateQueryList(Workout workout)
         {
             Workout defaultWorkout = new Workout();
-            List<string> querys = new List<string>;
-            List<MySqlParameter> parameters = new List<MySqlParameters>();
+            List<string> querys = new List<string>();
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
 
-            if(workout.UserId != defaultUser.UserId)
+            if(workout.UserId != defaultWorkout.UserId)
             {
-                updates.Add("userId = @userId");
+                querys.Add("userId = @userId");
                 parameters.Add(new MySqlParameter("@userId", workout.UserId));
             }
 
-            if(workout.WorkoutStart != defaultUser.WorkoutStart)
+            if(workout.WorkoutStart != defaultWorkout.WorkoutStart)
             {
-                updates.Add("workoutStart = @workoutStart");
+                querys.Add("workoutStart = @workoutStart");
                 parameters.Add(new MySqlParameter("@workoutStart", workout.WorkoutStart));
             }
 
-            if(workout.Duration != defaultUser.Duration)
+            if(workout.Duration != defaultWorkout.Duration)
             {
-                updates.Add("duration = @duration");
+                querys.Add("duration = @duration");
                 parameters.Add(new MySqlParameter("@duration", workout.Duration));
             }
             
-            if(workout.Notes != defaultUser.Notes)
+            if(workout.Notes != defaultWorkout.Notes)
             {
-                updates.Add("notes = @notes");
+                querys.Add("notes = @notes");
                 parameters.Add(new MySqlParameter("@notes", workout.Notes));
             }
 
             return (querys, parameters);
         }
 
-        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildUpdateQueryList(Workout workout)
+        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildInsertQueryList(Workout workout)
         {
             Workout defaultWorkout = new Workout();
             List<string> cols = new List<string>();
             List<string> vals = new List<string>();
-            List<MySqlParameter> parameters = new List<MySqlParameters>();
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
 
-            if(workout.UserId != defaultUser.UserId)
+            if(workout.UserId != defaultWorkout.UserId)
             {
                 cols.Add("userId");
                 vals.Add("@userId");
                 parameters.Add(new MySqlParameter("@userId", workout.UserId));
             }
 
-            if(workout.WorkoutStart != defaultUser.WorkoutStart)
+            if(workout.WorkoutStart != defaultWorkout.WorkoutStart)
             {
                 cols.Add("workoutStart");
                 vals.Add("@workoutStart");
                 parameters.Add(new MySqlParameter("@workoutStart", workout.WorkoutStart));
             }
 
-            if(workout.Duration != defaultUser.Duration)
+            if(workout.Duration != defaultWorkout.Duration)
             {
                 cols.Add("duration");
                 vals.Add("@duration");
                 parameters.Add(new MySqlParameter("@duration", workout.Duration));
             }
 
-            if(workout.Notes != defaultUser.Notes)
+            if(workout.Notes != defaultWorkout.Notes)
             {
                 cols.Add("notes");
                 vals.Add("@notes");

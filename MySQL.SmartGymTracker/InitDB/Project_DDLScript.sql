@@ -115,7 +115,7 @@ exerciseSetId	INT,
 workoutId	    INT,
 exerciseId	    INT,
 notes		    LONGTEXT,
-setType         ENUM('Lifting', 'Cardio') NOT NULL,
+setType         ENUM('Strength', 'Cardio') NOT NULL,
 PRIMARY KEY (exerciseSetId, workoutId, exerciseId),
 FOREIGN KEY (workoutId) REFERENCES workout(workoutId)
   ON UPDATE CASCADE ON DELETE CASCADE,

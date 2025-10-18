@@ -12,7 +12,7 @@ namespace Library.SmartGymTracker.Models
         public double Weight { get; set; }
         public int Reps { get; set; }
 
-        public StrengthSet()
+        public StrengthSet() : base()
         {
             SetNumber = -1;
             Weight = -1;
