@@ -15,12 +15,34 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<WorkoutBiometrics> GetAll()
+        public List<WorkoutBiometrics>? GetById(int id)
         {
-            string sql = "SELECT * FROM workoutbiometrics";
+            if (id <= 0)
+                return null;
+            string sql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepscore FROM workout_biometrics WHERE workoutId = @workoutId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<WorkoutBiometrics> biometrics = DataTableToList(dbreturn);
+            if (biometrics.Count != 0)
+            {
+                return biometrics;
+            }
+            return null;
+        }
+
+        public List<WorkoutBiometrics>? GetAll()
+        {
+            string sql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepscore FROM workout_biometrics;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<WorkoutBiometrics> biometrics = DataTableToList(dbreturn);
-            return biometrics;
+            if(biometrics.Count != 0)
+            {
+                return biometrics;
+            }
+            return null;
         }
 
         public WorkoutBiometrics? Add(WorkoutBiometrics biometrics)
@@ -34,7 +56,7 @@ namespace MySQL.SmartGymTracker
 
             // Get added record
             var (queries, selparametersList) = BuildUpdateQueryList(biometrics);
-            string selectsql = $"SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workout_biometrics WHERE {string.Join(" AND ", queries)};";
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)
@@ -61,7 +83,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE workoutId = @workoutId";
+            string selectSql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workout_biometrics WHERE workoutId = @workoutId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", biometrics.WorkoutId)
@@ -84,7 +106,7 @@ namespace MySQL.SmartGymTracker
                 return null;
             // Get updated record
             // Get updated record
-            string selectSql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workoutBiometrics WHERE workoutId = @workoutId";
+            string selectSql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workout_biometrics WHERE workoutId = @workoutId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", biometricsId)
@@ -97,7 +119,7 @@ namespace MySQL.SmartGymTracker
                 return null;
             }
 
-            string sql = "DELETE FROM workoutBiometrics WHERE workoutId = @workoutId";
+            string sql = "DELETE FROM workout_biometrics WHERE workoutId = @workoutId;";
             db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);

@@ -15,12 +15,30 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<Muscle> GetAll()
+        public List<Muscle>? GetById(int id)
         {
-            string sql = "SELECT * FROM exercise";
+            if (id <= 0)
+                return null;
+            string sql = "SELECT muscleId, name, description FROM exercise WHERE muscleId = @muscleId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@muscleId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<Muscle> muscle = DataTableToList(dbreturn);
+            if (muscle.Count != 0)
+                return muscle;
+            return null;
+        }
+
+        public List<Muscle>? GetAll()
+        {
+            string sql = "SELECT muscleId, name, description FROM exercise;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Muscle> muscle = DataTableToList(dbreturn);
-            return muscle;
+            if(muscle.Count != 0)
+                return muscle;
+            return null;
         }
 
         public Muscle? Add(Muscle muscle)
@@ -61,7 +79,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectsql = $"SELECT muscleId, name, description FROM muscle WHERE muscleId = @ muscleId;";
+            string selectsql = $"SELECT muscleId, name, description FROM muscle WHERE muscleId = @muscleId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@muscleId", muscle.MuscleId)
@@ -97,7 +115,7 @@ namespace MySQL.SmartGymTracker
                 return null;
             }
 
-            string sql = "DELETE FROM muscle WHERE muscleId = @muscleId";
+            string sql = "DELETE FROM muscle WHERE muscleId = @muscleId;";
             db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);

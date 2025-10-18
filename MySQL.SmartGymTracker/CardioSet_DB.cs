@@ -16,12 +16,30 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<CardioSet> GetAll()
+        public List<CardioSet>? GetById(int id)
+        {
+            if (id <= 0)
+                return null;
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId AND e.exerciseSetId = @exerciseSetId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@exerciseSetId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<CardioSet> cardioSet = DataTableToList(dbreturn);
+            if (cardioSet.Count != 0)
+                return cardioSet;
+            return null;
+        }
+
+        public List<CardioSet>? GetAll()
         {
             string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<CardioSet> biometrics = DataTableToList(dbreturn);
-            return biometrics;
+            if(biometrics.Count != 0)
+                return biometrics;
+            return null;
         }
 
         public CardioSet? Add(CardioSet cardioSet)

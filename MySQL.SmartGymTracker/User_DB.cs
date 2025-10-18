@@ -15,12 +15,30 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<User> GetAll()
+        public List<User>? GetById(int id)
         {
-            string sql = "SELECT * FROM users";
+            if (id <= 0)
+                return null;
+            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@userId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<User> user = DataTableToList(dbreturn);
+            if (user.Count != 0)
+                return user;
+            return null;
+        }
+
+        public List<User>? GetAll()
+        {
+            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<User> users = DataTableToList(dbreturn);
-            return users;
+            if (users.Count != 0)
+                return users;
+            return null;
         }
 
         public User? Add(User user)
@@ -38,7 +56,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", user.Username)
@@ -69,7 +87,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", user.UserId)
@@ -91,7 +109,7 @@ namespace MySQL.SmartGymTracker
         {
             if(userId <= 0)
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", userId)
@@ -104,7 +122,7 @@ namespace MySQL.SmartGymTracker
                 return null;
             }
 
-            string sql = "DELETE FROM users WHERE userId = @userId";
+            string sql = "DELETE FROM users WHERE userId = @userId;";
             db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);
@@ -119,7 +137,7 @@ namespace MySQL.SmartGymTracker
         {
             if(username == "" || password == "")
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username AND password = @password";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username AND password = @password;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", username),

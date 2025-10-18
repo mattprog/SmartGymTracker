@@ -20,12 +20,30 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<StrengthSet> GetAll()
+        public List<StrengthSet>? GetById(int id)
+        {
+            if (id <= 0)
+                return null;
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId AND e.exerciseSetId = @exerciseSetId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@exerciseSetId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<StrengthSet> strengthSet = DataTableToList(dbreturn);
+            if (strengthSet.Count != 0)
+                return strengthSet;
+            return null;
+        }
+
+        public List<StrengthSet>? GetAll()
         {
             string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
-            List<StrengthSet> biometrics = DataTableToList(dbreturn);
-            return biometrics;
+            List<StrengthSet> strengthSet = DataTableToList(dbreturn);
+            if(strengthSet.Count != 0)
+                return strengthSet;
+            return null;
         }
 
         public StrengthSet? Add(StrengthSet strengthSet)

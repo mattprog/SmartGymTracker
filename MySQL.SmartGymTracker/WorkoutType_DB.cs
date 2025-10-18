@@ -15,12 +15,34 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<WorkoutType> GetAll()
+        public WorkoutType? GetById(int id)
         {
-            string sql = "SELECT * FROM workoutType";
+            if(id <= 0)
+                return null;
+            string sql = "SELECT workoutTypeId, name, description, difficulty FROM workout_type WHERE workoutTypeId = @workoutTypeId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutTypeId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<WorkoutType> workoutTypes = DataTableToList(dbreturn);
+            if (workoutTypes.Count > 0)
+            {
+                return workoutTypes[0];
+            }
+            return null;
+        }
+
+        public List<WorkoutType>? GetAll()
+        {
+            string sql = "SELECT workoutTypeId, name, description, difficulty FROM workout_type";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<WorkoutType> workoutType = DataTableToList(dbreturn);
-            return workoutType;
+            if (workoutType.Count == 0)
+            {
+                return workoutType;
+            }
+            return null;
         }
 
         public WorkoutType? Add(WorkoutType workoutType)
@@ -34,7 +56,7 @@ namespace MySQL.SmartGymTracker
 
             // Get added record
             var (queries, selectParametersList) = BuildUpdateQueryList(workoutType);
-            string selectsql = $"SELECT workoutTypeId, name, description, difficulty FROM workoutType WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT workoutTypeId, name, description, difficulty FROM workout_type WHERE {string.Join(" AND ", queries)};";
             var result = db.ExecuteSelect(selectsql, selectParametersList);
 
             if (result.Rows.Count > 0)
@@ -97,7 +119,7 @@ namespace MySQL.SmartGymTracker
                 return null;
             }
 
-            string sql = "DELETE FROM workout_type WHERE workoutTypeId = @workoutTypeId";
+            string sql = "DELETE FROM workout_type WHERE workoutTypeId = @workoutTypeId;";
             db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);

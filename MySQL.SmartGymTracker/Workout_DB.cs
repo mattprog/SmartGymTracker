@@ -15,12 +15,30 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<Workout> GetAll()
+        public List<Workout>? GetById(int id)
         {
-            string sql = "SELECT * FROM workout";
+            if (id <= 0)
+                return null;
+            string sql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workoutId";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", id)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<Workout> workout = DataTableToList(dbreturn);
+            if (workout.Count != 0)
+                return workout;
+            return null;
+        }
+
+        public List<Workout>? GetAll()
+        {
+            string sql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Workout> workout = DataTableToList(dbreturn);
-            return workout;
+            if (workout.Count != 0)
+                return workout;
+            return null;
         }
 
         public Workout? Add(Workout workout)
@@ -61,7 +79,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout";
+            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workout.WorkoutId)
@@ -84,7 +102,7 @@ namespace MySQL.SmartGymTracker
             if (workoutId <= 0)
                 return null;
             // Get updated record
-            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout";
+            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workoutId)
@@ -97,7 +115,7 @@ namespace MySQL.SmartGymTracker
                 return null;
             }
 
-            string sql = "DELETE FROM workout WHERE workoutId = @workoutId";
+            string sql = "DELETE FROM workout WHERE workoutId = @workoutId;";
             db.ExecuteNonQuery(sql, parameters);
 
             var val = DataTableToList(result);
