@@ -1,43 +1,43 @@
 using System.Data;
+using Library.SmartGymTracker.Models;
 using MySql.Data.MySqlClient;
 
 namespace MySQL.SmartGymTracker
 {
     public class Biometrics_DB
     {
-        private readonly Database _db;
+        private DB db = new DB();
 
-        public Biometrics_DB()
-        {
-            _db = new DB();
-        }
+        public Biometrics_DB() { }
 
         public List<Biometrics> GetAll()
         {
             string sql = "SELECT * FROM biometrics";
-            var dbreturn = _db.ExecuteSelect(sql);
+            var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Biometrics> biometrics = DataTableToList(dbreturn);
             return biometrics;
         }
 
-        public Biometric? Add(Biometrics biometrics)
+        public Biometrics? Add(Biometrics biometrics)
         {
             // Perform update query
-            var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(workout);
+            var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(biometrics);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
-                return;
+                return null;
             string sql = $"INSERT INTO biometrics ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            _db.ExecuteNonQuery(sql, parametersList);
+            var success = db.ExecuteNonQuery(sql, parametersList);
+            if (success <= 0)
+                return null;
 
             // Get added record
-            var (queries, parametersList) = BuildUpdateQueryList(biometrics);
-            string sql = $"SELECT biometricsId, userId, dateEntered, weight, height, bodyFatPercentage, bmi, restingHeartRate FROM biometrcs WHERE {string.Join(" AND ", queries)};";
-            _db.ExecuteNonQuery(sql, parametersList);
+            var (queries, selParametersList) = BuildUpdateQueryList(biometrics);
+            string selectSql = $"SELECT biometricsId, userId, dateEntered, weight, height, bodyFatPercentage, bmi, restingHeartRate FROM biometrcs WHERE {string.Join(" AND ", queries)};";
+            var result = db.ExecuteSelect(selectSql, selParametersList);
 
             if (result.Rows.Count > 0)
             {
                 var val = DataTableToList(result);
-                if (val.Rows.Count > 0)
+                if (val.Count > 0)
                 {
                     return val.Last();
                 }
@@ -48,26 +48,26 @@ namespace MySQL.SmartGymTracker
         public Biometrics? Update(Biometrics biometrics)
         {
             // Return if no valid user id
-            if (biometrics.Biometrics <= 0)
+            if (biometrics.BiometricsId <= 0)
                 return null;
 
             // Perform update query
-            var (updateQueries, parametersList) = BuildUpdateQueryList(user);
+            var (updateQueries, parametersList) = BuildUpdateQueryList(biometrics);
             parametersList.Add(new MySqlParameter("@biometricsId", biometrics.BiometricsId));
             string sql = $"UPDATE biometrics SET {string.Join(", ", updateQueries)} WHERE biometricsId = @biometricsId;";
-            _db.ExecuteNonQuery(sql, parametersList);
+            db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
             string selectSql = "SELECT biometricsId, userId, dateEntered, weight, height, bodyFatPercentage, bmi, restingHeartRate WHERE biometricsId = @biometricsId";
-            var parameters = new MySqlParameter[]
+            var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@biometrics", biometrics.BiometricsId)
             };
-            var result = _db.ExecuteSelect(selectSql, parameters);
+            var result = db.ExecuteSelect(selectSql, parameters);
             if (result.Rows.Count > 0)
             {
                 var val = DataTableToList(result);
-                if (val.Rows.Count > 0)
+                if (val.Count > 0)
                 {
                     return val[0];
                 }
@@ -78,13 +78,12 @@ namespace MySQL.SmartGymTracker
         public Biometrics? Delete(int biometricsId)
         {
             if (biometricsId <= 0)
-                return;
-            // Get updated record
+                return null;
             // Get updated record
             string selectSql = "SELECT biometricsId, userId, dateEntered, weight, height, bodyFatPercentage, bmi, restingHeartRate WHERE biometricsId = @biometricsId";
             var parameters = new MySqlParameter[]
             {
-                new MySqlParameter("@biometricsId", biometrics.BiometricsId)
+                new MySqlParameter("@biometricsId", biometricsId)
             };
             var result = _db.ExecuteSelect(selectSql, parameters);
 
@@ -105,20 +104,20 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
-        public List<Biometrics> DataTableToList(Datatable t)
+        public List<Biometrics> DataTableToList(DataTable t)
         {
             List<Biometrics> biometrics = new List<Biometrics>();
             foreach (DataRow row in t.Rows)
             {
                 Biometrics biometric = new Biometrics
                 {
-                    BiometricId = Convert.ToInt32(row["biometricId"]),
+                    BiometricsId = Convert.ToInt32(row["biometricId"]),
                     UserId = Convert.ToInt32(row["userId"]),
-                    DateEntered = Convert.ToDateTime(row["dateEntered"]),
-                    Weight = Convert.ToDecimal(row["weight"]),
-                    Height = Convert.ToDecimal(row["height"]),
-                    BodyFatPercentage = Convert.ToDecimal(row["bodyFatPercentage"]),
-                    BMI = Convert.ToDecimal(row["bmi"]),
+                    DateEntered = DateOnly.FromDateTime(Convert.ToDateTime(row["dateEntered"])),
+                    Weight = Convert.ToDouble(row["weight"]),
+                    Height = Convert.ToDouble(row["height"]),
+                    BodyFatPercentage = Convert.ToDouble(row["bodyFatPercentage"]),
+                    BMI = Convert.ToDouble(row["bmi"]),
                     RestingHeartRate = Convert.ToInt32(row["restingHeartRate"])
                 };
                 biometrics.Add(biometric);
@@ -129,8 +128,8 @@ namespace MySQL.SmartGymTracker
         public (List<string> query, List<MySqlParameter> parameters) BuildUpdateQueryList(Biometrics biometrics)
         {
             Biometrics defaultBiometrics = new Biometrics();
-            List<string> querys = new List<string>;
-            List<MySqlParameter> parameters = new List<MySqlParameters>();
+            List<string> querys = new List<string>();
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
 
             if (biometrics.UserId != defaultBiometrics.UserId)
             {
@@ -171,12 +170,12 @@ namespace MySQL.SmartGymTracker
             return (querys, parameters);
         }
 
-        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildUpdateQueryList(Biometrics biometrics)
+        public (List<string> cols, List<string> vals, List<MySqlParameter> parameters) BuildInsertQueryList(Biometrics biometrics)
         {
             Biometrics defaultBiometrics = new Biometrics();
             List<string> cols = new List<string>();
             List<string> vals = new List<string>();
-            List<MySqlParameter> parameters = new List<MySqlParameters>();
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
 
             if(biometrics.UserId != defaultBiometrics.UserId)
             {
