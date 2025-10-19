@@ -15,7 +15,7 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<User>? GetById(int id)
+        public User? GetById(int id)
         {
             if (id <= 0)
                 return null;
@@ -27,7 +27,7 @@ namespace MySQL.SmartGymTracker
             var dbreturn = db.ExecuteSelect(sql, parameters);
             List<User> user = DataTableToList(dbreturn);
             if (user.Count != 0)
-                return user;
+                return user[0];
             return null;
         }
 
@@ -188,7 +188,13 @@ namespace MySQL.SmartGymTracker
                 parameters.Add(new MySqlParameter("@username", user.Username));
             }
 
-            if(user.FirstName != defaultUser.FirstName)
+            if(user.Password != defaultUser.Password)
+            {
+                querys.Add("password = @password");
+                parameters.Add(new MySqlParameter("@password", user.Password));
+            }
+
+            if (user.FirstName != defaultUser.FirstName)
             {
                 querys.Add("firstName = @firstName");
                 parameters.Add(new MySqlParameter("@firstName", user.FirstName));
@@ -215,7 +221,7 @@ namespace MySQL.SmartGymTracker
             if(user.DateOfBirth != defaultUser.DateOfBirth)
             {
                 querys.Add("dateOfBirth = @dateOfBirth");
-                parameters.Add(new MySqlParameter("@dateOfBirth", user.DateOfBirth));
+                parameters.Add(new MySqlParameter("@dateOfBirth", user.DateOfBirth.ToString("yyyy-MM-dd")));
             }
 
             if(user.Gender != defaultUser.Gender)
@@ -239,6 +245,13 @@ namespace MySQL.SmartGymTracker
                 cols.Add("username");
                 vals.Add("@username");
                 parameters.Add(new MySqlParameter("@username", user.Username));
+            }
+            
+            if(user.Password != defaultUser.Password)
+            {
+                cols.Add("password");
+                vals.Add("@password");
+                parameters.Add(new MySqlParameter("@password", user.Password));
             }
 
             if (user.FirstName != defaultUser.FirstName)
@@ -273,7 +286,7 @@ namespace MySQL.SmartGymTracker
             {
                 cols.Add("dateOfBirth");
                 vals.Add("@dateOfBirth");
-                parameters.Add(new MySqlParameter("@dateOfBirth", user.DateOfBirth));
+                parameters.Add(new MySqlParameter("@dateOfBirth", user.DateOfBirth.ToString("yyyy-MM-dd")));
             }
 
             if (user.Gender != defaultUser.Gender)

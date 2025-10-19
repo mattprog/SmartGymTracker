@@ -15,11 +15,11 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<Muscle>? GetById(int id)
+        public Muscle? GetById(int id)
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT muscleId, name, description FROM exercise WHERE muscleId = @muscleId;";
+            string sql = "SELECT muscleId, name, description FROM muscle WHERE muscleId = @muscleId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@muscleId", id)
@@ -27,13 +27,13 @@ namespace MySQL.SmartGymTracker
             var dbreturn = db.ExecuteSelect(sql, parameters);
             List<Muscle> muscle = DataTableToList(dbreturn);
             if (muscle.Count != 0)
-                return muscle;
+                return muscle[0];
             return null;
         }
 
         public List<Muscle>? GetAll()
         {
-            string sql = "SELECT muscleId, name, description FROM exercise;";
+            string sql = "SELECT muscleId, name, description FROM muscle;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Muscle> muscle = DataTableToList(dbreturn);
             if(muscle.Count != 0)
@@ -47,12 +47,16 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(muscle);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO muscle ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            db.ExecuteNonQuery(sql, parametersList);
+            string sql = $"INSERT INTO muscle ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
+            var success = db.ExecuteScalar(sql, parametersList);
+            var validId = Convert.ToInt64(success);
 
             // Get added record
-            var (queries, selparametersList) = BuildUpdateQueryList(muscle);
-            string selectsql = $"SELECT muscleId, name, description FROM muscle WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT muscleId, name, description FROM muscle WHERE muscleId = @muscleId;";
+            var selparametersList = new List<MySqlParameter>
+            {
+                new MySqlParameter("@muscleId", validId)
+            };
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)

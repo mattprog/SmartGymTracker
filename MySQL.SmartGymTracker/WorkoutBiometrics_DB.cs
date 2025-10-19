@@ -4,18 +4,18 @@ using MySql.Data.MySqlClient;
 
 namespace MySQL.SmartGymTracker
 {
-    public class ExerciseBiometrics_DB
+    public class WorkoutBiometrics_DB
     {
         private readonly DB db = new DB();
 
-        public ExerciseBiometrics_DB() { }
+        public WorkoutBiometrics_DB() { }
 
         public string getLastErrorMessage()
         {
             return db.ErrorMessage;
         }
 
-        public List<WorkoutBiometrics>? GetById(int id)
+        public WorkoutBiometrics? GetById(int id)
         {
             if (id <= 0)
                 return null;
@@ -28,7 +28,7 @@ namespace MySQL.SmartGymTracker
             List<WorkoutBiometrics> biometrics = DataTableToList(dbreturn);
             if (biometrics.Count != 0)
             {
-                return biometrics;
+                return biometrics[0];
             }
             return null;
         }
@@ -51,12 +51,16 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(biometrics);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO workoutbiometrics ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            db.ExecuteNonQuery(sql, parametersList);
+            string sql = $"INSERT INTO workout_biometrics ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
+            var success = db.ExecuteScalar(sql, parametersList);
+            var validId = Convert.ToInt64(success);
 
             // Get added record
-            var (queries, selparametersList) = BuildUpdateQueryList(biometrics);
-            string selectsql = $"SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workout_biometrics WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepScore FROM workout_biometrics WHERE workoutId = @workoutId;";
+            var selparametersList = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", biometrics.WorkoutId)
+            };
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)
@@ -78,8 +82,7 @@ namespace MySQL.SmartGymTracker
 
             // Perform update query
             var (updateQueries, parametersList) = BuildUpdateQueryList(biometrics);
-            parametersList.Add(new MySqlParameter("@biometricsId", biometrics.WorkoutId));
-            string sql = $"UPDATE biometrics SET {string.Join(", ", updateQueries)} WHERE biometricsId = @biometricsId;";
+            string sql = $"UPDATE workout_biometrics SET {string.Join(", ", updateQueries)} WHERE workoutId = @workoutId;";
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record

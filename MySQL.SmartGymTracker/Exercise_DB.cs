@@ -15,7 +15,7 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<Exercise>? GetById(int id)
+        public Exercise? GetById(int id)
         {
             if (id <= 0)
                 return null;
@@ -27,7 +27,7 @@ namespace MySQL.SmartGymTracker
             var dbreturn = db.ExecuteSelect(sql, parameters);
             List<Exercise> exercise = DataTableToList(dbreturn);
             if (exercise.Count != 0)
-                return exercise;
+                return exercise[0];
             return null;
         }
 
@@ -47,12 +47,16 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(exercise);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO exercise ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            db.ExecuteNonQuery(sql, parametersList);
+            string sql = $"INSERT INTO exercise ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
+            var success = db.ExecuteScalar(sql, parametersList);
+            var validId = Convert.ToInt64(success);
 
             // Get added record
-            var (queries, selparametersList) = BuildUpdateQueryList(exercise);
-            string selectsql = $"SELECT exerciseId, muscleId, exerciseName, description FROM exercise WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT exerciseId, muscleId, exerciseName, description FROM exercise WHERE exerciseId = @exerciseId;";
+            var selparametersList = new List<MySqlParameter>
+            {
+                new MySqlParameter("@exerciseId", validId)
+            };
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)

@@ -51,12 +51,16 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(workoutType);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO workout_type ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            db.ExecuteNonQuery(sql, parametersList);
+            string sql = $"INSERT INTO workout_type ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
+            var success = db.ExecuteScalar(sql, parametersList);
+            var validId = Convert.ToInt64(success);
 
             // Get added record
-            var (queries, selectParametersList) = BuildUpdateQueryList(workoutType);
-            string selectsql = $"SELECT workoutTypeId, name, description, difficulty FROM workout_type WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT workoutTypeId, name, description, difficulty FROM workout_type WHERE workoutTypeId = @workoutTypeId;";
+            var selectParametersList = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutTypeId", validId)
+            };
             var result = db.ExecuteSelect(selectsql, selectParametersList);
 
             if (result.Rows.Count > 0)

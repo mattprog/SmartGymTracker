@@ -14,10 +14,10 @@ namespace MySQL.SmartGymTracker
         private MySqlConnection? _connection;
         private MySqlCommand? _command;
 
-        private static readonly string ConnectionString = "Server={DB_HOST};Database={DB_NAME};User ID={DB_USER};Password={DB_PASSWORD};";
+        private static readonly string ConnectionString = $"Server={DB_HOST};Database={DB_NAME};User ID={DB_USER};Password={DB_PASSWORD};Convert Zero Datetime=True;Allow Zero Datetime=True;";
         private const string DB_HOST = "localhost";
         private const string DB_NAME = "smart_gym_tracker";
-        private const string DB_USER = "gymapp";
+        private const string DB_USER = "root";
         private const string DB_PASSWORD = "";
         //private const long DB_PORT = 3306;
 

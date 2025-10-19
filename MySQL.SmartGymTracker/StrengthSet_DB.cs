@@ -20,11 +20,11 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<StrengthSet>? GetById(int id)
+        public StrengthSet? GetById(int id)
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId AND e.exerciseSetId = @exerciseSetId;";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set s WHERE e.exerciseSetId = s.exerciseSetId AND e.exerciseSetId = @exerciseSetId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", id)
@@ -32,13 +32,13 @@ namespace MySQL.SmartGymTracker
             var dbreturn = db.ExecuteSelect(sql, parameters);
             List<StrengthSet> strengthSet = DataTableToList(dbreturn);
             if (strengthSet.Count != 0)
-                return strengthSet;
+                return strengthSet[0];
             return null;
         }
 
         public List<StrengthSet>? GetAll()
         {
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId;";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set s WHERE e.exerciseSetId = s.exerciseSetId;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<StrengthSet> strengthSet = DataTableToList(dbreturn);
             if(strengthSet.Count != 0)
@@ -52,12 +52,20 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildBaseInsertQueryList(strengthSet);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO exercise_set ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            db.ExecuteNonQuery(sql, parametersList);
+            string sql = $"INSERT INTO exercise_set ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
+            if (strengthSet.ExerciseSetId <= 0)
+            {
+                var success = db.ExecuteScalar(sql, parametersList);
+                var validId = Convert.ToInt64(success);
+                strengthSet.ExerciseSetId = Convert.ToInt32(validId);
+            }
             (columnQueries, valQueries, parametersList) = BuildInsertQueryList(strengthSet);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            sql = $"INSERT INTO cardio_set ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
+            columnQueries.Add("exerciseSetId");
+            valQueries.Add("@exerciseSetId");
+            parametersList.Add(new MySqlParameter("@exerciseSetId", strengthSet.ExerciseSetId));
+            sql = $"INSERT INTO strength_set ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
@@ -65,7 +73,7 @@ namespace MySQL.SmartGymTracker
             var (queriestemp, selparametersListtemp) = BuildUpdateQueryList(strengthSet);
             queries.AddRange(queriestemp);
             selparametersList.AddRange(selparametersListtemp);
-            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId;";
+            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set s WHERE e.exerciseSetId = s.exerciseSetId;";
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)
@@ -89,8 +97,6 @@ namespace MySQL.SmartGymTracker
 
             var (updateQueries, parametersList) = BuildBaseUpdateQueryList(strengthSet);
             parametersList.Add(new MySqlParameter("@exerciseSetId", strengthSet.ExerciseSetId));
-            parametersList.Add(new MySqlParameter("@workoutId", strengthSet.WorkoutId));
-            parametersList.Add(new MySqlParameter("@exerciseId", strengthSet.ExerciseId));
             string sql = $"UPDATE exercise_set SET {string.Join(", ", updateQueries)} WHERE exerciseSetId = @exerciseSetId AND workoutId = @workoutId AND exerciseId = @exerciseId;";
             if (strengthSet.SetNumber == 1)
             {
@@ -98,12 +104,11 @@ namespace MySQL.SmartGymTracker
             }
             (updateQueries, parametersList) = BuildUpdateQueryList(strengthSet);
             parametersList.Add(new MySqlParameter("@exerciseSetId", strengthSet.ExerciseSetId));
-            parametersList.Add(new MySqlParameter("@workoutId", strengthSet.WorkoutId));
             sql = $"UPDATE strength_set SET {string.Join(", ", updateQueries)} WHERE exerciseSetId = @exerciseSetId AND setNumber = @setNumber;";
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId;";
+            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set s WHERE e.exerciseSetId = s.exerciseSetId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", strengthSet.ExerciseSetId),
@@ -127,7 +132,7 @@ namespace MySQL.SmartGymTracker
             if (exerciseSetId <= 0)
                 return null;
 
-            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set c WHERE e.exerciseSetId = s.exerciseSetId;";
+            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, s.setNumber, s.reps, s.weight FROM exercise_set e JOIN strength_set s WHERE e.exerciseSetId = s.exerciseSetId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", exerciseSetId)
@@ -177,7 +182,7 @@ namespace MySQL.SmartGymTracker
             List<string> querys = new List<string>();
             List<MySqlParameter> parameters = new List<MySqlParameter>();
 
-            if (strengthSet.ExerciseId != defaultStrengthSet.ExerciseSetId)
+            if (strengthSet.ExerciseId != defaultStrengthSet.ExerciseId)
             {
                 querys.Add("exerciseId = @exerciseId");
                 parameters.Add(new MySqlParameter("@exerciseId", strengthSet.ExerciseId));

@@ -52,7 +52,7 @@ CREATE TABLE workout (
 workoutId		    INT      PRIMARY KEY AUTO_INCREMENT,
 userId			    INT      NOT NULL,
 workoutStart	    DATETIME NOT NULL,
-durationInSeconds	INT      NOT NULL,
+duration         	INT      NOT NULL,
 notes			    LONGTEXT,
 FOREIGN KEY (userId) REFERENCES users(userId)
   ON UPDATE CASCADE ON DELETE CASCADE
@@ -61,7 +61,7 @@ FOREIGN KEY (userId) REFERENCES users(userId)
 
 CREATE TABLE workout_biometrics (
 workoutId         INT,
-setps             INT,
+steps             INT,
 averageHeartRate  INT,
 maxHeartRate      INT,
 caloriesBurned    INT,
@@ -111,7 +111,7 @@ FOREIGN KEY (muscleId) REFERENCES muscle(muscleId)
 
 
 CREATE TABLE exercise_set (
-exerciseSetId	INT,
+exerciseSetId	INT AUTO_INCREMENT,
 workoutId	    INT,
 exerciseId	    INT,
 notes		    LONGTEXT,

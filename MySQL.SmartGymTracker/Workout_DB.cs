@@ -1,6 +1,7 @@
 using System.Data;
 using Library.SmartGymTracker.Models;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Asn1.Mozilla;
 
 namespace MySQL.SmartGymTracker
 {
@@ -15,7 +16,7 @@ namespace MySQL.SmartGymTracker
             return db.ErrorMessage;
         }
 
-        public List<Workout>? GetById(int id)
+        public Workout? GetById(int id)
         {
             if (id <= 0)
                 return null;
@@ -27,7 +28,7 @@ namespace MySQL.SmartGymTracker
             var dbreturn = db.ExecuteSelect(sql, parameters);
             List<Workout> workout = DataTableToList(dbreturn);
             if (workout.Count != 0)
-                return workout;
+                return workout[0];
             return null;
         }
 
@@ -40,6 +41,19 @@ namespace MySQL.SmartGymTracker
                 return workout;
             return null;
         }
+        public bool LinkWorkoutToWorkoutType(int workoutId, int workoutTypeId)
+        {
+            if (workoutId <= 0 || workoutTypeId <= 0)
+                return false;
+            string sql = "INSERT INTO workout_workoutType (workoutId, workoutTypeId) VALUES (@workoutId, @workoutTypeId);";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", workoutId),
+                new MySqlParameter("@workoutTypeId", workoutTypeId)
+            };
+            db.ExecuteNonQuery(sql, parameters);
+            return true;
+        }
 
         public Workout? Add(Workout workout)
         {
@@ -47,12 +61,16 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(workout);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO workout ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
-            db.ExecuteNonQuery(sql, parametersList);
+            string sql = $"INSERT INTO workout ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
+            var success = db.ExecuteScalar(sql, parametersList);
+            var validId = Convert.ToInt64(success);
 
             // Get added record
-            var (queries, selparametersList) = BuildUpdateQueryList(workout);
-            string selectsql = $"SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE {string.Join(" AND ", queries)};";
+            string selectsql = $"SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workoutId;";
+            var selparametersList = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", validId)
+            };
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
             if (result.Rows.Count > 0)
@@ -79,7 +97,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout;";
+            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workoutId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workout.WorkoutId)
@@ -102,7 +120,7 @@ namespace MySQL.SmartGymTracker
             if (workoutId <= 0)
                 return null;
             // Get updated record
-            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workout;";
+            string selectSql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE workoutId = @workoutId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workoutId)
@@ -159,7 +177,7 @@ namespace MySQL.SmartGymTracker
             if(workout.WorkoutStart != defaultWorkout.WorkoutStart)
             {
                 querys.Add("workoutStart = @workoutStart");
-                parameters.Add(new MySqlParameter("@workoutStart", workout.WorkoutStart));
+                parameters.Add(new MySqlParameter("@workoutStart", workout.WorkoutStart.ToString("yyyy-MM-dd HH:mm:ss")));
             }
 
             if(workout.Duration != defaultWorkout.Duration)
@@ -195,7 +213,7 @@ namespace MySQL.SmartGymTracker
             {
                 cols.Add("workoutStart");
                 vals.Add("@workoutStart");
-                parameters.Add(new MySqlParameter("@workoutStart", workout.WorkoutStart));
+                parameters.Add(new MySqlParameter("@workoutStart", workout.WorkoutStart.ToString("yyyy-MM-dd HH:mm:ss")));
             }
 
             if(workout.Duration != defaultWorkout.Duration)
