@@ -1,6 +1,6 @@
 ﻿namespace SmartGymTracker.Api.Models
 {
-    public class UserLogin
+    public class User
     {
         
         public string? UserId { get; set; } = default!;

@@ -21,7 +21,7 @@ namespace SmartGymTracker.Api.Controllers
             }
 
             [HttpPost]
-            public async Task<IActionResult> Register(UserLogin model)
+            public async Task<IActionResult> Register(User model)
             {
                 var user = new ApplicationUser { UserName = model.username, Email = model.email, FirstName = model.firstname, LastName = model.lastname,
                     Phone = model.phone_number, BirthDate = model.dateofbirth, Weight = model.weight, Height = model.height };
