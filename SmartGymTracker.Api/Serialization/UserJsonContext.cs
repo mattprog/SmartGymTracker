@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Library.SmartGymTracker.Models;
 using SmartGymTracker.Api.Models;
 
 namespace SmartGymTracker.Api.Serialization;

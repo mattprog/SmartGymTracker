@@ -56,16 +56,66 @@ app.MapGet("/api/user", async (
     string firstname, 
     string? lastname, 
     string phone_number, 
-    string? dateofbirth,
-    string? weight, 
-    string? height, 
+    string? dateofbirth, 
     string? gender,
     CancellationToken ct) =>
 {
     var data = await svc.SearchAsync(UserId, username, password, email, firstname, lastname, phone_number,dateofbirth,
-            weight, height, gender, ct);
+             gender, ct);
     return Results.Ok(new UserResponse(data.Count, data));
 });
+
+app.MapGet("/api/user/{UserId}", async (
+    IUserService svc,
+    int UserId,
+    CancellationToken ct) =>
+{
+    var data = await svc.GetUserAsync(UserId, ct);
+    return Results.Ok(data);
+});
+
+app.MapPost("/api/user", async (
+    IUserService svc,
+    string? username,
+    string? password,
+    string? email,
+    string firstname,
+    string? lastname,
+    string phone_number,
+    string? dateofbirth,
+    string? gender,
+    CancellationToken ct) =>
+{
+    var data = await svc.AddUserAsync(username, password, email, firstname, lastname, phone_number, dateofbirth, gender, ct);
+    return Results.Ok(data);
+});
+
+app.MapPut("/api/user/{UserId}", async (
+    IUserService svc,
+    int UserId,
+    string? username,
+    string? password,
+    string? email,
+    string firstname,
+    string? lastname,
+    string phone_number,
+    string? dateofbirth,
+    string? gender,
+    CancellationToken ct) =>
+{
+    var data = await svc.UpdateUserAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth, gender, ct);
+    return Results.Ok(data);
+});
+
+app.MapDelete("/api/user/{UserId}", async (
+    IUserService svc,
+    int UserId,
+    CancellationToken ct) =>
+{
+    var data = await svc.DeleteUserAsync(UserId, ct);
+    return Results.Ok(data);
+});
+
 
 // additional mapping
 // app.MapControllers();

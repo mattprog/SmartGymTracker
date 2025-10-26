@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 
 using System.Threading.Tasks;
 using SmartGymTracker.Api.Models;
+using Library.SmartGymTracker.Models;
 using SmartGymTracker.Api.Services;
 
 namespace SmartGymTracker.Api.Controllers;
@@ -46,7 +47,7 @@ public class UserController : ControllerBase
 
 
     [HttpPost]
-    [HttpGet]
+    //[HttpGet]
     public async Task<IActionResult> Post(
         string? UserId,
         string? username,
@@ -62,12 +63,12 @@ public class UserController : ControllerBase
         CancellationToken ct)
     {
         var data = await _svc.SearchAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth,
-            weight, height, gender, ct);
+            gender, ct);
         return Ok(new { count = data.Count, data });
     }
     public async Task<IActionResult> Login(User model)
     {
-        var result = await _LoginManager.PasswordSignInAsync(model.username, model.password, false, false);
+        var result = await _LoginManager.PasswordSignInAsync(model.Username, model.Password, false, false);
         if (result.Succeeded)
         {
             return Ok("Login successful");
