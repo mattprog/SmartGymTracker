@@ -41,6 +41,7 @@ namespace MyApp
                 Console.WriteLine($"USER UPDATE NAME: {u.FirstName}");
             User tempUser = new User(u);
             tempUser.Username = "SecondUSer";
+            tempUser.Password = "SndUserPw5d!!!";
             tempUser.FirstName = "ADDEDNAME";
             tempUser = userDb.Add(tempUser) ?? new User();
             List<User> usersInDb = userDb.GetAll() ?? new List<User>();
