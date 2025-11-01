@@ -27,14 +27,12 @@ namespace MyApp
                 Gender = "Male",
                 Privilege = PrivilegeLevel.Admin
             };
-            Console.WriteLine($"{u.Privilege}");
             User_DB userDb = new User_DB();
             u = userDb.Add(u) ?? new User();
             if (u == new User())
                 Console.WriteLine($"DB ERROR: {userDb.getLastErrorMessage()}");
             else
                 Console.WriteLine($"USER ADD ID: {u.UserId}");
-            Console.WriteLine($"{u.Privilege}");
             u.FirstName = "John";
             u = userDb.Update(u) ?? new User();
             if (u == new User())
@@ -42,8 +40,6 @@ namespace MyApp
             else
                 Console.WriteLine($"USER UPDATE NAME: {u.FirstName}");
             User tempUser = new User(u);
-            Console.WriteLine($"{u.Privilege}");
-            Console.WriteLine($"{ tempUser.Privilege}");
             tempUser.Username = "SecondUSer";
             tempUser.FirstName = "ADDEDNAME";
             tempUser = userDb.Add(tempUser) ?? new User();
@@ -327,9 +323,9 @@ namespace MyApp
             wbDb.Delete(wb.WorkoutId);
             List<WorkoutBiometrics> wbAfterD = wbDb.GetAll() ?? new List<WorkoutBiometrics>();
             if (wbAfterD.Count == 0)
-                Console.WriteLine($"DB ERROR: {wbDb.getLastErrorMessage()}");
+                Console.WriteLine($"Success: Empty Workout Biometrics IN DB AFTER DELETE COUNT: {wbAfterD.Count}");
             else
-                Console.WriteLine($"Workout Biometrics IN DB AFTER DELETE COUNT: {wbAfterD.Count}");
+                Console.WriteLine($"DB ERROR, should be empty: {wbDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Workout Biometrics================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Cardio Set tests...");
@@ -371,9 +367,9 @@ namespace MyApp
             cDb.Delete(c.ExerciseSetId);
             List<CardioSet> cAfterD = cDb.GetAll() ?? new List<CardioSet>();
             if (cAfterD.Count == 0)
-                Console.WriteLine($"DB ERROR: {cDb.getLastErrorMessage()}");
+                Console.WriteLine($"Success: Empty CardioSet IN DB AFTER DELETE COUNT: {cAfterD.Count}");
             else
-                Console.WriteLine($"CardioSet IN DB AFTER DELETE COUNT: {cAfterD.Count}");
+                Console.WriteLine($"DB ERROR, should be empty: {cDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Cardio Sets================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Strength Sets tests...");
@@ -417,9 +413,9 @@ namespace MyApp
             sDb.Delete(s.ExerciseSetId);
             List<StrengthSet> sAfterD = sDb.GetAll() ?? new List<StrengthSet>();
             if (sAfterD.Count == 0)
-                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+                Console.WriteLine($"Success: Empty StrengthSet IN DB AFTER DELETE COUNT: {sAfterD.Count}");
             else
-                Console.WriteLine($"StrengthSet IN DB AFTER DELETE COUNT: {sAfterD.Count}");
+                Console.WriteLine($"DB ERROR, should be empty: {sDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Strength Test================");
             Console.WriteLine();
             Console.WriteLine();

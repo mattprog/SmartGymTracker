@@ -38,7 +38,7 @@ namespace MySQL.SmartGymTracker
             string sql = "SELECT workoutTypeId, name, description, difficulty FROM workout_type";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<WorkoutType> workoutType = DataTableToList(dbreturn);
-            if (workoutType.Count == 0)
+            if (workoutType.Count != 0)
             {
                 return workoutType;
             }
