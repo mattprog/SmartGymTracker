@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using static SmartGymTracker.Api.Controllers.UserController;
 using System.Threading.Tasks;
 using SmartGymTracker.Api.Models;
+using Library.SmartGymTracker.Models;
 
 namespace SmartGymTracker.Api.Controllers
 {
@@ -21,11 +22,18 @@ namespace SmartGymTracker.Api.Controllers
             }
 
             [HttpPost]
-            public async Task<IActionResult> Register(UserLogin model)
+            public async Task<IActionResult> Register(User model)
             {
-                var user = new ApplicationUser { UserName = model.username, Email = model.email, FirstName = model.firstname, LastName = model.lastname,
-                    Phone = model.phone_number, BirthDate = model.dateofbirth, Weight = model.weight, Height = model.height };
-                var result = await _userManager.CreateAsync(user, model.password);
+                var user = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Phone = model.PhoneNumber,
+                    BirthDate = model.DateOfBirth.ToString("yyyy-MM-dd") // Convert DateOnly to string  
+                };
+                var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     return Ok("Registration successful");

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 
 using System.Threading.Tasks;
 using SmartGymTracker.Api.Models;
+using Library.SmartGymTracker.Models;
+using SmartGymTracker.Api.Services;
 
 namespace SmartGymTracker.Api.Controllers;
 [ApiController]
@@ -33,17 +35,40 @@ public class UserController : ControllerBase
         public string? LastName { get; internal set; }
     }
 
+    private readonly IUserService _svc;
+
     private readonly SignInManager<ApplicationUser> _LoginManager;
 
-    public UserController(SignInManager<ApplicationUser> LoginManager)
+    public UserController(SignInManager<ApplicationUser> LoginManager,IUserService svc)
     {
         _LoginManager = LoginManager;
+        _svc = svc;
     }
 
+
     [HttpPost]
-    public async Task<IActionResult> Login(UserLogin model)
+    //[HttpGet]
+    public async Task<IActionResult> Post(
+        string? UserId,
+        string? username,
+        string? password,
+        string? email,
+        string firstname,
+        string? lastname,
+        string? phone_number,
+        string? dateofbirth,
+        string? weight,
+        string? height,
+        string? gender,
+        CancellationToken ct)
     {
-        var result = await _LoginManager.PasswordSignInAsync(model.username, model.password, false, false);
+        var data = await _svc.SearchAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth,
+            gender, ct);
+        return Ok(new { count = data.Count, data });
+    }
+    public async Task<IActionResult> Login(User model)
+    {
+        var result = await _LoginManager.PasswordSignInAsync(model.Username, model.Password, false, false);
         if (result.Succeeded)
         {
             return Ok("Login successful");

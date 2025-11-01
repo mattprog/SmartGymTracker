@@ -1,4 +1,5 @@
-﻿using SmartGymTracker.Api.Models;
+﻿using System.Reflection;
+using SmartGymTracker.Api.Models;
 using SmartGymTracker.Api.Serialization;
 using SmartGymTracker.Api.Services;
 
@@ -10,6 +11,14 @@ builder.Services.AddScoped<IExerciseService, ExerciseService>();
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
     o.SerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
+});
+
+builder.Services.AddHttpClient<IUserClient, UserClient>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.ConfigureHttpJsonOptions(o =>
+{
+    o.SerializerOptions.TypeInfoResolverChain.Insert(0, UserJsonContext.Default);
 });
 
 // later for inserting to objects
@@ -37,6 +46,76 @@ app.MapGet("/api/exercises", async (
     var data = await svc.SearchAsync(q, muscle, equipment, category, ct);
     return Results.Ok(new ExercisesResponse(data.Count, data));
 });
+
+app.MapGet("/api/user", async (
+    IUserService svc,
+    string? UserId,
+    string? username,
+    string? password,
+    string? email, 
+    string firstname, 
+    string? lastname, 
+    string phone_number, 
+    string? dateofbirth, 
+    string? gender,
+    CancellationToken ct) =>
+{
+    var data = await svc.SearchAsync(UserId, username, password, email, firstname, lastname, phone_number,dateofbirth,
+             gender, ct);
+    return Results.Ok(new UserResponse(data.Count, data));
+});
+
+app.MapGet("/api/user/{UserId}", async (
+    IUserService svc,
+    int UserId,
+    CancellationToken ct) =>
+{
+    var data = await svc.GetUserAsync(UserId, ct);
+    return Results.Ok(data);
+});
+
+app.MapPost("/api/user", async (
+    IUserService svc,
+    string? username,
+    string? password,
+    string? email,
+    string firstname,
+    string? lastname,
+    string phone_number,
+    string? dateofbirth,
+    string? gender,
+    CancellationToken ct) =>
+{
+    var data = await svc.AddUserAsync(username, password, email, firstname, lastname, phone_number, dateofbirth, gender, ct);
+    return Results.Ok(data);
+});
+
+app.MapPut("/api/user/{UserId}", async (
+    IUserService svc,
+    int UserId,
+    string? username,
+    string? password,
+    string? email,
+    string firstname,
+    string? lastname,
+    string phone_number,
+    string? dateofbirth,
+    string? gender,
+    CancellationToken ct) =>
+{
+    var data = await svc.UpdateUserAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth, gender, ct);
+    return Results.Ok(data);
+});
+
+app.MapDelete("/api/user/{UserId}", async (
+    IUserService svc,
+    int UserId,
+    CancellationToken ct) =>
+{
+    var data = await svc.DeleteUserAsync(UserId, ct);
+    return Results.Ok(data);
+});
+
 
 // additional mapping
 // app.MapControllers();
