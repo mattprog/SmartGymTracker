@@ -30,7 +30,8 @@ lastName	    VARCHAR(50)  NOT NULL,
 email		    VARCHAR(254) NOT NULL,
 phoneNumber	    VARCHAR(20)  NOT NULL,
 dateOfBirth	    DATE         NOT NULL,
-gender          VARCHAR(20)  NOT NULL
+gender          VARCHAR(20)  NOT NULL,
+privilegeLevel  ENUM('User', 'Admin') NOT NULL DEFAULT 'User'
 );
 
 
