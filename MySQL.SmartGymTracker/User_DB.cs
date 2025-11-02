@@ -19,7 +19,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId";
+            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE userId = @userId";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", id)
@@ -33,7 +33,7 @@ namespace MySQL.SmartGymTracker
 
         public List<User>? GetAll()
         {
-            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users";
+            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<User> users = DataTableToList(dbreturn);
             if (users.Count != 0)
@@ -56,7 +56,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username;";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE username = @username;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", user.Username)
@@ -87,7 +87,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId;";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", user.UserId)
@@ -109,7 +109,7 @@ namespace MySQL.SmartGymTracker
         {
             if(userId <= 0)
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE userId = @userId;";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", userId)
@@ -137,7 +137,7 @@ namespace MySQL.SmartGymTracker
         {
             if(username == "" || password == "")
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender FROM users WHERE username = @username AND password = @password;";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE username = @username AND password = @password;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", username),
@@ -169,7 +169,8 @@ namespace MySQL.SmartGymTracker
                     Email = Convert.ToString(row["email"]) ?? "",
                     PhoneNumber = Convert.ToString(row["phoneNumber"]) ?? "",
                     DateOfBirth = DateOnly.FromDateTime(Convert.ToDateTime(row["dateOfBirth"])),
-                    Gender = Convert.ToString(row["gender"]) ?? ""
+                    Gender = Convert.ToString(row["gender"]) ?? "",
+                    Privilege = Enum.TryParse<PrivilegeLevel>(Convert.ToString(row["privilegeLevel"]), out var result ) ? result : PrivilegeLevel.User
                 };
                 users.Add(user);
             }
@@ -229,6 +230,9 @@ namespace MySQL.SmartGymTracker
                 querys.Add("gender = @gender");
                 parameters.Add(new MySqlParameter("@gender", user.Gender));
             }
+
+            querys.Add("privilegeLevel = @privilegeLevel");
+            parameters.Add(new MySqlParameter("@privilegeLevel", user.Privilege.ToString()));
 
             return (querys, parameters);
         }
@@ -295,6 +299,10 @@ namespace MySQL.SmartGymTracker
                 vals.Add("@gender");
                 parameters.Add(new MySqlParameter("@gender", user.Gender));
             }
+
+            cols.Add("privilegeLevel");
+            vals.Add("@privilegeLevel");
+            parameters.Add(new MySqlParameter("@privilegeLevel", user.Privilege.ToString()));
 
             return (cols, vals, parameters);
         }
