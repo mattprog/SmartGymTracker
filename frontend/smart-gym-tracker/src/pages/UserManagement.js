@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 
 const initialUsers = [
-  { id: 1, username: "jdoe", email: "jdoe@example.com", role: "User", status: "Active" },
-  { id: 2, username: "asmith", email: "asmith@example.com", role: "Admin", status: "Active" },
-  { id: 3, username: "mjones", email: "mjones@example.com", role: "User", status: "Inactive" },
+  { id: 1, username: "janedoe", email: "jdoe@example.com", role: "User", status: "Active" },
+  { id: 2, username: "austinsmith", email: "asmith@example.com", role: "Admin", status: "Active" },
+  { id: 3, username: "martinjones", email: "mjones@example.com", role: "User", status: "Inactive" },
+  { id: 4, username: "amandaorama", email: "amanda@example.com", role: "Admin", status: "Active", password: "mandy123" },
+  { id: 5, username: "admin", email: "admin@example.com", role: "Admin", status: "Active", password: "password" },
+  { id: 6, username: "rockwayne", email: "bwayne@example.com", role: "User", status: "Active" },
+  { id: 7, username: "matthew", email: "matthew@example.com", role: "User", status: "Inactive" },
+  { id: 8, username: "shannon", email: "pparker@example.com", role: "User", status: "Active" },
+  { id: 9, username: "ashton", email: "tstark@example.com", role: "Admin", status: "Active" },
+  { id: 10, username: "martinaberdnt", email: "srogers@example.com", role: "User", status: "Inactive" },
 ];
 
 const UserManagement = () => {
@@ -12,24 +19,16 @@ const UserManagement = () => {
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [resetUserId, setResetUserId] = useState(null);
 
-  const handleEdit = (id) => {
-    setEditUserId(id);
-  };
-
-  const handleSave = (id) => {
-    setEditUserId(null);
-  };
-
+  const handleEdit = (id) => setEditUserId(id);
+  const handleSave = (id) => setEditUserId(null);
   const handleDelete = (id) => {
     setUsers(users.filter(u => u.id !== id));
     setDeleteUserId(null);
   };
-
   const handleResetPassword = (id) => {
     alert(`Reset password link sent to: ${users.find(u => u.id === id).email}`);
     setResetUserId(null);
   };
-
   const handleChange = (id, field, value) => {
     setUsers(users.map(u => u.id === id ? { ...u, [field]: value } : u));
   };
@@ -182,3 +181,4 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
+
