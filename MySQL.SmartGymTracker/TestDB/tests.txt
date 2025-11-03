@@ -1,0 +1,427 @@
+﻿/*
+ *  This is a simple console test file used to test all the CRUD features
+ *    of the database tables.
+ */
+/*
+using System;
+using System.Diagnostics;
+using Library.SmartGymTracker.Models;
+using MySQL.SmartGymTracker;
+
+namespace MyApp
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("==================TESTING: User==================");
+            User u = new User()
+            {
+                Username = "testuser",
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@gmail.com",
+                PhoneNumber = "111-222-3333",
+                Password = "thisnewpwrd",
+                DateOfBirth = DateOnly.FromDateTime(new DateTime(2020, 1, 1)),
+                Gender = "Male",
+                Privilege = PrivilegeLevel.Admin
+            };
+            User_DB userDb = new User_DB();
+            u = userDb.Add(u) ?? new User();
+            if (u == new User())
+                Console.WriteLine($"DB ERROR: {userDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"USER ADD ID: {u.UserId}");
+            u.FirstName = "John";
+            u = userDb.Update(u) ?? new User();
+            if (u == new User())
+                Console.WriteLine($"DB ERROR: {userDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"USER UPDATE NAME: {u.FirstName}");
+            User tempUser = new User(u);
+            tempUser.Username = "SecondUSer";
+            tempUser.Password = "SndUserPw5d!!!";
+            tempUser.FirstName = "ADDEDNAME";
+            tempUser = userDb.Add(tempUser) ?? new User();
+            List<User> usersInDb = userDb.GetAll() ?? new List<User>();
+            if (usersInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {userDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"USERS IN DB COUNT: {usersInDb.Count}");
+            u = userDb.GetById(u.UserId) ?? new User();
+            if (u == new User())
+                Console.WriteLine($"DB ERROR: {userDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"USER GETBYID NAME: {u.FirstName}");
+            userDb.Delete(u.UserId);
+            List<User> usersAfterDelete = userDb.GetAll() ?? new List<User>();
+            if (usersAfterDelete.Count == 0)
+                Console.WriteLine($"DB ERROR: {userDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"USERS IN DB AFTER DELETE COUNT: {usersAfterDelete.Count}");
+            Console.WriteLine("===============END OF TESTING: USER================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to BIOMETRICS tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Biometric==================");
+            Biometrics b = new Biometrics()
+            {
+                UserId = 2,
+                DateEntered = DateOnly.FromDateTime(DateTime.Today),
+                Weight = 180.11,
+                Height = 72,
+                BodyFatPercentage = 0.11,
+                BMI = 12,
+                RestingHeartRate = 70
+            };
+            Biometrics_DB bioDb = new Biometrics_DB();
+            b = bioDb.Add(b) ?? new Biometrics();
+            if (b == new Biometrics())
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Biometrics ADD ID: {b.BiometricsId}");
+            b.Weight = 167.67;
+            b = bioDb.Update(b) ?? new Biometrics();
+            if (b == new Biometrics())
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Biometrics UPDATE Weight: {b.Weight}");
+            Biometrics tempBio = new Biometrics(b);
+            tempBio.Weight = 199.99;
+            tempBio = bioDb.Add(tempBio) ?? new Biometrics();
+            List<Biometrics> biosInDb = bioDb.GetAll() ?? new List<Biometrics>();
+            if (biosInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Biometrics IN DB COUNT: {biosInDb.Count}");
+            b = bioDb.GetById(b.BiometricsId) ?? new Biometrics();
+            if (b == new Biometrics())
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Biometrics GETBYID Weight: {b.Weight}");
+            bioDb.Delete(b.BiometricsId);
+            List<Biometrics> biosAfterDelete = bioDb.GetAll() ?? new List<Biometrics>();
+            if (biosAfterDelete.Count == 0)
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Biometrics IN DB AFTER DELETE COUNT: {biosAfterDelete.Count}");
+            Console.WriteLine("===============END OF TESTING: Biometrics================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Muscle tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Muscle==================");
+            Muscle m = new Muscle()
+            {
+                Name = "NewMus",
+                Description = "NewM"
+            };
+            Muscle_DB mDb = new Muscle_DB();
+            m = mDb.Add(m) ?? new Muscle();
+            if (m == new Muscle())
+                Console.WriteLine($"DB ERROR: {mDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Muscle ADD ID: {m.MuscleId}");
+            m.Description = "676767";
+            m = mDb.Update(m) ?? new Muscle();
+            if (m == new Muscle())
+                Console.WriteLine($"DB ERROR: {mDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Muscle UPDATE Description: {m.Description}");
+            Muscle tempM = new Muscle(m);
+            tempM.Description = "addedM";
+            tempM = mDb.Add(tempM) ?? new Muscle();
+            List<Muscle> msInDb = mDb.GetAll() ?? new List<Muscle>();
+            if (msInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {mDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Muscle IN DB COUNT: {msInDb.Count}");
+            m = mDb.GetById(m.MuscleId) ?? new Muscle();
+            if (m == new Muscle())
+                Console.WriteLine($"DB ERROR: {mDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Muscle GETBYID Description: {m.Description}");
+            mDb.Delete(m.MuscleId);
+            List<Muscle> mAfterDelete = mDb.GetAll() ?? new List<Muscle>();
+            if (mAfterDelete.Count == 0)
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Muscles IN DB AFTER DELETE COUNT: {mAfterDelete.Count}");
+            Console.WriteLine("===============END OF TESTING: Muscles================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Exercise tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Exercise==================");
+            Exercise e = new Exercise()
+            {
+                MuscleId = 2,
+                ExerciseName = "NewEx",
+                Description = "New"
+            };
+            Exercise_DB eDb = new Exercise_DB();
+            e = eDb.Add(e) ?? new Exercise();
+            if (e == new Exercise())
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Exercise ADD ID: {e.ExerciseId}");
+            e.ExerciseName = "Hack Squat";
+            e = eDb.Update(e) ?? new Exercise();
+            if (e == new Exercise())
+                Console.WriteLine($"DB ERROR: {bioDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Exercise UPDATE Name: {e.ExerciseName}");
+            Exercise tempE = new Exercise(e);
+            tempE.ExerciseName = "Standing Leg Press";
+            tempE = eDb.Add(tempE) ?? new Exercise();
+            List<Exercise> eInDb = eDb.GetAll() ?? new List<Exercise>();
+            if (eInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {eDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Exercise IN DB COUNT: {eInDb.Count}");
+            e = eDb.GetById(e.ExerciseId) ?? new Exercise();
+            if (e == new Exercise())
+                Console.WriteLine($"DB ERROR: {eDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Exercise GETBYID Exercise Name: {e.ExerciseName}");
+            eDb.Delete(e.ExerciseId);
+            List<Exercise> eAfterD = eDb.GetAll() ?? new List<Exercise>();
+            if (eAfterD.Count == 0)
+                Console.WriteLine($"DB ERROR: {eDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Exercise IN DB AFTER DELETE COUNT: {eAfterD.Count}");
+            Console.WriteLine("===============END OF TESTING: Exercise================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to WorkoutTypes tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: WorkoutTypes==================");
+            WorkoutType wt = new WorkoutType()
+            {
+                Name = "NewWT",
+                Description = "NewWType",
+                Difficulty = "Easy"
+            };
+            WorkoutType_DB wtDb = new WorkoutType_DB();
+            wt = wtDb.Add(wt) ?? new WorkoutType();
+            if (wt == new WorkoutType())
+                Console.WriteLine($"DB ERROR: {wtDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"WorkoutType ADD ID: {wt.WorkoutTypeId}");
+            wt.Difficulty = "Hard";
+            wt = wtDb.Update(wt) ?? new WorkoutType();
+            if (wt == new WorkoutType())
+                Console.WriteLine($"DB ERROR: {wtDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"WorkoutType UPDATE Difficulty: {wt.Difficulty}");
+            WorkoutType tempWt = new WorkoutType(wt);
+            tempWt.Difficulty = "SUPERDUPERHARD";
+            tempWt = wtDb.Add(tempWt) ?? new WorkoutType();
+            List<WorkoutType> wtInDb = wtDb.GetAll() ?? new List<WorkoutType>();
+            if (wtInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {wtDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"WorkoutTypes IN DB COUNT: {wtInDb.Count}");
+            wt = wtDb.GetById(wt.WorkoutTypeId) ?? new WorkoutType();
+            if (wt == new WorkoutType())
+                Console.WriteLine($"DB ERROR: {wtDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"WorkoutType GETBYID Difficulty: {wt.Difficulty}");
+            wtDb.Delete(wt.WorkoutTypeId);
+            List<WorkoutType> wtAfterD = wtDb.GetAll() ?? new List<WorkoutType>();
+            if (wtAfterD.Count == 0)
+                Console.WriteLine($"DB ERROR: {wtDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"WorkoutType IN DB AFTER DELETE COUNT: {wtAfterD.Count}");
+            Console.WriteLine("===============END OF TESTING: WorkoutTypes================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Workout tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Workout==================");
+            Workout w = new Workout()
+            {
+                UserId = 2,
+                WorkoutTypeId = 2,
+                WorkoutStart = DateTime.Today,
+                Duration = 500,
+                Notes = "NewWorkout"
+            };
+            Workout_DB wDb = new Workout_DB();
+            w = wDb.Add(w) ?? new Workout();
+            if (w == new Workout())
+                Console.WriteLine($"DB ERROR: {wDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout ADD ID: {w.WorkoutId}");
+            w.Notes = "SUPERFUN";
+            w = wDb.Update(w) ?? new Workout();
+            if (w == new Workout())
+                Console.WriteLine($"DB ERROR: {wDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout UPDATE Notes: {w.Notes}");
+            Workout tempW = new Workout(w);
+            tempW.Notes = "WELLTHATSNOTGOOD";
+            tempW = wDb.Add(tempW) ?? new Workout();
+            List<Workout> wInDb = wDb.GetAll() ?? new List<Workout>();
+            if (wInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {wDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workouts IN DB COUNT: {wInDb.Count}");
+            w = wDb.GetById(w.WorkoutId) ?? new Workout();
+            if (w == new Workout())
+                Console.WriteLine($"DB ERROR: {wDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout GETBYID Notes: {w.Notes}");
+            wDb.Delete(w.WorkoutId);
+            List<Workout> wAfterD = wDb.GetAll() ?? new List<Workout>();
+            if (wAfterD.Count == 0)
+                Console.WriteLine($"DB ERROR: {wDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout IN DB AFTER DELETE COUNT: {wAfterD.Count}");
+            Console.WriteLine("===============END OF TESTING: Workout================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Workout Biometrics tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Workout Biometric==================");
+            WorkoutBiometrics wb = new WorkoutBiometrics()
+            {
+                WorkoutId = 2,
+                Steps = 500,
+                AverageHeartRate = 100,
+                MaxHeartRate = 60,
+                CaloriesBurned = 1,
+                Feeling = "Good",
+                SleepScore = 20
+            };
+            WorkoutBiometrics_DB wbDb = new WorkoutBiometrics_DB();
+            wb = wbDb.Add(wb) ?? new WorkoutBiometrics();
+            if (wb == new WorkoutBiometrics())
+                Console.WriteLine($"DB ERROR: {wbDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout Biometrics ADD ID: {wb.WorkoutId}");
+            wb.CaloriesBurned = 167;
+            wb = wbDb.Update(wb) ?? new WorkoutBiometrics();
+            if (wb == new WorkoutBiometrics())
+                Console.WriteLine($"DB ERROR: {wbDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"WorkoutBiometrics UPDATE Calories: {wb.CaloriesBurned}");
+            WorkoutBiometrics tempWb = new WorkoutBiometrics(wb);
+            tempWb.CaloriesBurned = 6767;
+            tempWb = wbDb.Update(tempWb) ?? new WorkoutBiometrics();
+            List<WorkoutBiometrics> wbInDb = wbDb.GetAll() ?? new List<WorkoutBiometrics>();
+            if (wbInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {wbDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout Biometrics IN DB COUNT: {wbInDb.Count}");
+            wb = wbDb.GetById(wb.WorkoutId) ?? new WorkoutBiometrics();
+            if (wb == new WorkoutBiometrics())
+                Console.WriteLine($"DB ERROR: {wbDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Workout Biometrics GETBYID Calories: {wb.CaloriesBurned}");
+            wbDb.Delete(wb.WorkoutId);
+            List<WorkoutBiometrics> wbAfterD = wbDb.GetAll() ?? new List<WorkoutBiometrics>();
+            if (wbAfterD.Count == 0)
+                Console.WriteLine($"Success: Empty Workout Biometrics IN DB AFTER DELETE COUNT: {wbAfterD.Count}");
+            else
+                Console.WriteLine($"DB ERROR, should be empty: {wbDb.getLastErrorMessage()}");
+            Console.WriteLine("===============END OF TESTING: Workout Biometrics================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Cardio Set tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Cardio Test==================");
+            CardioSet c = new CardioSet()
+            {
+                WorkoutId = 2,
+                ExerciseId = 2,
+                Duration = 1,
+                Distance = 1
+            };
+            CardioSet_DB cDb = new CardioSet_DB();
+            c = cDb.Add(c) ?? new CardioSet();
+            if (c == new CardioSet())
+                Console.WriteLine($"DB ERROR: {cDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Cardio Set ADD ID: {c.ExerciseSetId}");
+            c.Distance = 69;
+            c = cDb.Update(c) ?? new CardioSet();
+            if (c == new CardioSet())
+                Console.WriteLine($"DB ERROR: {cDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Cardio Set UPDATE Distance: {c.Distance}");
+            CardioSet tempC = new CardioSet(c);
+            tempC.Distance = 500;
+            tempC = cDb.Update(tempC) ?? new CardioSet();
+            List<CardioSet> cInDb = cDb.GetAll() ?? new List<CardioSet>();
+            if (cInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {cDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Cardio Set IN DB COUNT: {cInDb.Count}");
+            c = cDb.GetById(c.ExerciseSetId) ?? new CardioSet();
+            if (c == new CardioSet())
+                Console.WriteLine($"DB ERROR: {cDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"CardioSet GETBYID Distance: {c.Distance}");
+            cDb.Delete(c.ExerciseSetId);
+            List<CardioSet> cAfterD = cDb.GetAll() ?? new List<CardioSet>();
+            if (cAfterD.Count == 0)
+                Console.WriteLine($"Success: Empty CardioSet IN DB AFTER DELETE COUNT: {cAfterD.Count}");
+            else
+                Console.WriteLine($"DB ERROR, should be empty: {cDb.getLastErrorMessage()}");
+            Console.WriteLine("===============END OF TESTING: Cardio Sets================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Strength Sets tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Strength Sets==================");
+            StrengthSet s = new StrengthSet()
+            {
+                WorkoutId = 2,
+                ExerciseId = 2,
+                SetNumber = 1,
+                Weight = 1,
+                Reps = 1
+            };
+            StrengthSet_DB sDb = new StrengthSet_DB();
+            s = sDb.Add(s) ?? new StrengthSet();
+            if (s == new StrengthSet())
+                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"StrengthSet ADD ID: {s.ExerciseSetId}");
+            s.Weight = 167.67;
+            s = sDb.Update(s) ?? new StrengthSet();
+            if (s == new StrengthSet())
+                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"StrengthSet UPDATE Weight: {s.Weight}");
+            StrengthSet tempS = new StrengthSet(s);
+            tempS.SetNumber = 3;
+            tempS.Weight = 199.99;
+            tempS = sDb.Add(tempS) ?? new StrengthSet();
+            List<StrengthSet> sInDb = sDb.GetAll() ?? new List<StrengthSet>();
+            if (sInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"StrengthSet IN DB COUNT: {sInDb.Count}");
+            s = sDb.GetById(s.ExerciseSetId) ?? new StrengthSet();
+            if (s == new StrengthSet())
+                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"StrengthSet GETBYID Weight: {s.Weight}");
+            sDb.Delete(s.ExerciseSetId);
+            List<StrengthSet> sAfterD = sDb.GetAll() ?? new List<StrengthSet>();
+            if (sAfterD.Count == 0)
+                Console.WriteLine($"Success: Empty StrengthSet IN DB AFTER DELETE COUNT: {sAfterD.Count}");
+            else
+                Console.WriteLine($"DB ERROR, should be empty: {sDb.getLastErrorMessage()}");
+            Console.WriteLine("===============END OF TESTING: Strength Test================");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("===============END OF TESTING================");
+        }
+    }
+}
+*/

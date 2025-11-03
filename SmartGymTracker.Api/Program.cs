@@ -6,6 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<IExerciseClient, ExerciseClient>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
+builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddControllers().AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
+});
 
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
@@ -26,20 +31,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/api/exercises", async (
-    IExerciseService svc,
-    string? q,
-    string? muscle,
-    string? equipment,
-    string? category,
-    CancellationToken ct) =>
-{
-    var data = await svc.SearchAsync(q, muscle, equipment, category, ct);
-    return Results.Ok(new ExercisesResponse(data.Count, data));
-});
-
-// additional mapping
-// app.MapControllers();
+app.MapControllers();
 
 _ = Task.Run(async () =>
 {
