@@ -15,6 +15,8 @@ namespace SmartGymTracker.Api.Services;
         Task<User> UpdateUserAsync(int UserId, string? username, string? password, string? email, string firstname, string? lastname,
             string phone_number, string? dateofbirth, string? gender, CancellationToken ct = default);
 
+        Task<User> UpdatePassword(string? email, string? newPassword, CancellationToken ct = default);
+
         Task<User> DeleteUserAsync(int UserId, CancellationToken ct = default);
 }
     public sealed class UserService(IUserClient client) : IUserService
@@ -59,7 +61,15 @@ namespace SmartGymTracker.Api.Services;
         return user;
       }
 
-      public async Task<User> DeleteUserAsync(
+    public async Task<User> UpdatePassword(
+     string? email, string? newPassword, CancellationToken ct = default)
+      {
+        var user = await client.UpdatePassword(email, newPassword, ct);
+
+        return user;
+      }
+
+    public async Task<User> DeleteUserAsync(
         int UserId, CancellationToken ct = default)
       {
         var user = await client.DeleteUserAsync(UserId, false, ct);
