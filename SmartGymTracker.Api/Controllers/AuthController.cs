@@ -25,7 +25,6 @@ public class AuthController : ControllerBase
             return BadRequest("Username and password are required.");
         }
 
-        // You can replace this logic with Identity later
         var users = await _svc.SearchAsync(
             null,
             model.Username,
@@ -77,7 +76,23 @@ public class AuthController : ControllerBase
         if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             return BadRequest("Email and new password are required.");
 
-        var result = await _svc.UpdatePassword(model.Email, model.Password,ct);
+        var users = await _svc.SearchAsync(
+                    null,
+                    null,
+                    null,
+                    model.Email,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    ct
+        );
+
+        if (users.Count != 1)
+            return Unauthorized("Invalid email address.");
+        
+        var result = await _svc.UpdatePassword(users[0], model.Password, ct);
 
         return Ok(new { message = "Password successfully reset." });
     }
