@@ -2,38 +2,52 @@
 using SmartGymTracker.Api.Models;
 using SmartGymTracker.Api.Serialization;
 using SmartGymTracker.Api.Services;
+using SmartGymTracker.Api.Controllers; // needed for AddApplicationPart
+
+AppContext.SetSwitch("Microsoft.AspNetCore.Mvc.ApiExplorer.IsEnhancedModelMetadataSupported", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<IExerciseClient, ExerciseClient>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
 
-builder.Services.ConfigureHttpJsonOptions(o =>
-{
-    o.SerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
-});
-
 builder.Services.AddHttpClient<IUserClient, UserClient>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
+    o.SerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
     o.SerializerOptions.TypeInfoResolverChain.Insert(0, UserJsonContext.Default);
 });
 
-// later for inserting to objects
-// builder.Services.AddControllers().AddJsonOptions(o =>
-// {
-//     o.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
-// });
+builder.Services
+    .AddControllers()
+    .AddApplicationPart(typeof(AuthController).Assembly)
+    .AddControllersAsServices();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5153", "http://localhost:5074")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+app.UseCors("AllowAll");
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseRouting();
+
+app.MapControllerRoute(
+    name: "auth",
+    pattern: "api/auth/{action=Index}/{id?}");
 
 app.MapGet("/api/exercises", async (
     IExerciseService svc,
@@ -52,15 +66,15 @@ app.MapGet("/api/user", async (
     string? UserId,
     string? username,
     string? password,
-    string? email, 
-    string firstname, 
-    string? lastname, 
-    string phone_number, 
-    string? dateofbirth, 
+    string? email,
+    string firstname,
+    string? lastname,
+    string phone_number,
+    string? dateofbirth,
     string? gender,
     CancellationToken ct) =>
 {
-    var data = await svc.SearchAsync(UserId, username, password, email, firstname, lastname, phone_number,dateofbirth,
+    var data = await svc.SearchAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth,
              gender, ct);
     return Results.Ok(new UserResponse(data.Count, data));
 });
@@ -116,15 +130,19 @@ app.MapDelete("/api/user/{UserId}", async (
     return Results.Ok(data);
 });
 
-
-// additional mapping
-// app.MapControllers();
-
 _ = Task.Run(async () =>
 {
     using var scope = app.Services.CreateScope();
-    var client = scope.ServiceProvider.GetRequiredService<IExerciseClient>();
-    try { await client.GetAllAsync(true); } catch { /* ignore */ }
+
+    var exerciseClient = scope.ServiceProvider.GetRequiredService<IExerciseClient>();
+    var userClient = scope.ServiceProvider.GetRequiredService<IUserClient>();
+
+    try
+    {
+        await exerciseClient.GetAllAsync(true);
+        await userClient.GetAllAsync(true);
+    }
+    catch { /* ignore */ }
 });
 
 app.Run();

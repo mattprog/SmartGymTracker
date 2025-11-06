@@ -19,6 +19,8 @@ namespace SmartGymTracker.Api.Services;
         Task<User> UpdateUserAsync(int UserId, string? username, string? password, string? email, string? firstname, string? lastname, string? phone_number, string? dateofbirth,
           string? gender, bool forceReload = false, CancellationToken ct = default);
 
+        Task<User> UpdatePassword(User user, string newPassword, CancellationToken ct = default);
+
         Task<User> DeleteUserAsync(int UserId, bool forceReload = false, CancellationToken ct = default);
 }
 public sealed class UserClient(HttpClient http) : IUserClient
@@ -74,6 +76,14 @@ public sealed class UserClient(HttpClient http) : IUserClient
         user.PhoneNumber = phone_number ?? string.Empty;
         user.DateOfBirth = dateofbirth is not null && DateOnly.TryParse(dateofbirth, out var dob) ? dob : DateOnly.MinValue;
         user.Gender = gender ?? string.Empty;
+        var db = new User_DB();
+        var data = db.Update(user);
+        return data;
+    }
+    
+    public async Task<User> UpdatePassword(User user, string newPassword, CancellationToken ct = default)
+    {
+        user.Password = newPassword ?? string.Empty;
         var db = new User_DB();
         var data = db.Update(user);
         return data;
