@@ -6,3 +6,5 @@ This is the documentation folder that contains:
 * Software Requirement and Design (RD) Document
 * Implementation and Testing (IT) Document
 * Any other relevant files to include for documentation purposes
+
+Note: Any old documentation for a previous increment is moved into a subfolder for record keeping purposes.
