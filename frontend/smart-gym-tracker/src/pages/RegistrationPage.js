@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaDumbbell, FaArrowLeft } from "react-icons/fa";
+import { register } from "../services/AuthService";
 
 const RegistrationPage = ({ setCurrentPage }) => {
   const [formData, setFormData] = useState({
@@ -21,14 +22,33 @@ const RegistrationPage = ({ setCurrentPage }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!formData.username || !formData.password || !formData.email) {
       setError("Please fill in Username, Email, and Password.");
       return;
     }
 
-    setShowSuccess(true);
     setError("");
+    try {
+      const res = await register({
+        Username: formData.username,
+        Password: formData.password,
+        Email: formData.email,
+        FirstName: formData.firstname,
+        LastName: formData.lastname,
+        PhoneNumber: formData.phone,
+        DateOfBirth: formData.dateofbirth,
+        Gender: "", // optional
+      });
+
+      if (res) {
+        setShowSuccess(true);
+      } else {
+        setError("Registration failed.");
+      }
+    } catch (err) {
+      setError(err.message || "Registration failed.");
+    }
   };
 
   const handleCloseSuccess = () => {
@@ -57,15 +77,23 @@ const RegistrationPage = ({ setCurrentPage }) => {
         <FaArrowLeft /> Back
       </div>
 
+
+
+
       {/* Top Title */}
       <div className="text-3xl font-bold text-white mb-8 flex justify-center items-center gap-2">
         SmartGymTracker <FaDumbbell size={32} className="text-white" />
       </div>
 
+
+
+
       {/* Registration Box */}
       <div className="bg-white shadow-md rounded p-6 max-w-md w-full">
         <h2 className="text-xl font-bold mb-2">Create New Account</h2>
         <p className="text-sm text-gray-600 mb-4">* indicates required fields</p>
+
+
 
         {/* Error Box */}
         {error && (
@@ -76,6 +104,9 @@ const RegistrationPage = ({ setCurrentPage }) => {
             </button>
           </div>
         )}
+
+
+
 
         <div className="flex flex-col gap-3 mb-4">
           <input
@@ -95,6 +126,8 @@ const RegistrationPage = ({ setCurrentPage }) => {
             placeholder="Last Name"
           />
 
+
+
           {/* Email (Required) */}
           <div className="flex flex-col">
             <label className="text-sm font-medium mb-1">
@@ -110,6 +143,9 @@ const RegistrationPage = ({ setCurrentPage }) => {
             />
           </div>
 
+
+
+
           {/* Username (Required) */}
           <div className="flex flex-col">
             <label className="text-sm font-medium mb-1">
@@ -124,6 +160,9 @@ const RegistrationPage = ({ setCurrentPage }) => {
               placeholder="Username"
             />
           </div>
+
+
+
 
           {/* Password (Required) */}
           <div className="flex flex-col">
@@ -182,7 +221,10 @@ const RegistrationPage = ({ setCurrentPage }) => {
         </button>
       </div>
 
-      {/* Success Modal */}
+
+
+
+      {/* Success popup */}
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded shadow-lg p-6 max-w-sm w-full text-center">
@@ -204,6 +246,7 @@ const RegistrationPage = ({ setCurrentPage }) => {
 };
 
 export default RegistrationPage;
+
 
 
 
