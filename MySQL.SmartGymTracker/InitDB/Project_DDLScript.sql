@@ -6,6 +6,9 @@ USE smart_gym_tracker;
 
 
 -- Delete Old Tables if they Exist
+DROP TABLE IF EXISTS notification;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS goal;
 DROP TABLE IF EXISTS cardio_set;
 DROP TABLE IF EXISTS strength_set;
 DROP TABLE IF EXISTS exercise_set;
@@ -31,7 +34,8 @@ email		    VARCHAR(254) NOT NULL,
 phoneNumber	    VARCHAR(20)  NOT NULL,
 dateOfBirth	    DATE         NOT NULL,
 gender          VARCHAR(20)  NOT NULL,
-privilegeLevel  ENUM('User', 'Admin') NOT NULL DEFAULT 'User'
+privilegeLevel  ENUM('User', 'Admin') NOT NULL DEFAULT 'User',
+active			BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
 
@@ -141,5 +145,41 @@ exerciseSetId INT PRIMARY KEY,
 distance INT NOT NULL,
 duration INT NOT NULL,
 FOREIGN KEY (exerciseSetId) REFERENCES exercise_set(exerciseSetId)
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+CREATE TABLE goal (
+goalId		  INT PRIMARY KEY AUTO_INCREMENT,
+userId		  INT NOT NULL,
+timeCreated   DATETIME NOT NULL,
+title		  VARCHAR(50) NOT NULL,
+description   LONGTEXT,
+startDate	  DATE,
+targetEndDate DATE,
+status	  ENUM('Not_Started', 'In_Progress', 'Completed', 'Failed') NOT NULL,
+FOREIGN KEY (userId) REFERENCES users(userId)
+  ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+CREATE TABLE messages (
+messageId	  INT PRIMARY KEY AUTO_INCREMENT,
+title	      VARCHAR(50) NOT NULL,
+details	      LONGTEXT NOT NULL,
+timeCreated   DATETIME NOT NULL,
+type	      ENUM('System', 'Milestone', 'Tip', 'Trend', 'Goal', 'Specific') NOT NULL
+);
+
+
+CREATE TABLE notification (
+userId       INT,
+messageId    INT,
+timeSent	 DATETIME NOT NULL,
+read		 BOOLEAN NOT NULL DEFAULT FALSE,
+PRIMARY KEY (userId, messageId),
+FOREIGN KEY (userId) REFERENCES users(userId)
+  ON UPDATE CASCADE ON DELETE CASCADE,
+FOREIGN KEY (messageId) REFERENCES message(messageId)
   ON UPDATE CASCADE ON DELETE CASCADE
 );
