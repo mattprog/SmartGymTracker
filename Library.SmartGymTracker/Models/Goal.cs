@@ -18,6 +18,7 @@ namespace Library.SmartGymTracker.Models
         public int GoalId { get; set; }
         public int UserId { get; set; }
         public DateTime TimeCreated { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly TargetEndDate { get; set; }
@@ -29,6 +30,7 @@ namespace Library.SmartGymTracker.Models
             GoalId = -1;
             UserId = -1;
             TimeCreated = DateTime.MinValue;
+            Title = string.Empty;
             Description = string.Empty;
             StartDate = DateOnly.MinValue;
             TargetEndDate = DateOnly.MinValue;
@@ -41,6 +43,7 @@ namespace Library.SmartGymTracker.Models
             GoalId = g.GoalId;
             UserId = g.UserId;
             TimeCreated = g.TimeCreated;
+            Title = g.Title;
             Description = g.Description;
             StartDate = g.StartDate;
             TargetEndDate = g.TargetEndDate;
