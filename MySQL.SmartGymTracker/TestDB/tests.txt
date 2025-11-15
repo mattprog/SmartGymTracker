@@ -461,9 +461,9 @@ namespace MyApp
             gDb.Delete(g.GoalId);
             List<Goal> gAfterDelete = gDb.GetAll() ?? new List<Goal>();
             if (gAfterDelete.Count != 0)
-                Console.WriteLine($"Success, should be empty: {gDb.getLastErrorMessage()}");
+                Console.WriteLine($"Success, should be empty: {gAfterDelete.Count}");
             else
-                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {gAfterDelete.Count}");
+                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {gDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Goal Test================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Messages tests...");
@@ -505,9 +505,9 @@ namespace MyApp
             meDb.Delete(me.MessageId);
             List<Messages> meAfterD = meDb.GetAll() ?? new List<Messages>();
             if (meAfterD.Count != 0)
-                Console.WriteLine($"Success, should be empty: {meDb.getLastErrorMessage()}");
+                Console.WriteLine($"Success, should be empty: {meAfterD.Count}");
             else
-                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {meAfterD.Count}");
+                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {meDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Messages Test================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Messages tests...");
@@ -519,7 +519,7 @@ namespace MyApp
                 UserId = 2,
                 MessageId = 2,
                 TimeSent = DateTime.Now,
-                Read = false
+                IsRead = false
             };
             Notification_DB nDb = new Notification_DB();
             n = nDb.Add(n) ?? new Notification();
@@ -527,12 +527,12 @@ namespace MyApp
                 Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
             else
                 Console.WriteLine($"Notification IDS: {n.UserId} {n.MessageId}");
-            n.Read = true;
+            n.IsRead = true;
             n = nDb.Update(n) ?? new Notification();
             if (n == new Notification())
                 Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
             else
-                Console.WriteLine($"Notificaiton UPDATE Read: {n.Read}");
+                Console.WriteLine($"Notification UPDATE Read: {n.IsRead}");
             Notification tempN = new Notification(n);
             List<Notification> nInDb = nDb.GetAll() ?? new List<Notification>();
             if (nInDb.Count == 0)
@@ -541,15 +541,15 @@ namespace MyApp
                 Console.WriteLine($"Notification IN DB COUNT: {nInDb.Count}");
             List<Notification> nUsers = nDb.GetByUserId(n.UserId) ?? new List<Notification>();
             if (n == new Notification())
-                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+                Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
             else
-                Console.WriteLine($"Notificaiton GETBYUserID: {nUsers.Count}");
+                Console.WriteLine($"Notification GETBYUserID: {nUsers.Count}");
             List<Notification> nMessage = nDb.GetByMessageId(n.MessageId) ?? new List<Notification>();
             if (n == new Notification())
-                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+                Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
             else
-                Console.WriteLine($"Notificaiton GETBYNotificationID: {nMessage.Count}");
-            sDb.Delete(s.ExerciseSetId);
+                Console.WriteLine($"Notification GETBYNotificationID: {nMessage.Count}");
+            nDb.Delete(n.UserId, n.MessageId);
             List<Notification> nAfterDb = nDb.GetAll() ?? new List<Notification>();
             if (nAfterDb.Count == 0)
                 Console.WriteLine($"Success: Empty Notification IN DB AFTER DELETE COUNT: {nAfterDb.Count}");

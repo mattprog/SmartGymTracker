@@ -64,7 +64,7 @@ namespace MySQL.SmartGymTracker
             string selectsql = "SELECT goalId, userId, timeCreated, title, description, startDate, targetEndDate, status FROM goal WHERE goalId = @goalId;";
             var selparametersList = new List<MySqlParameter>
             {
-                new MySqlParameter("@workoutId", validId)
+                new MySqlParameter("@goalId", validId)
             };
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
@@ -87,6 +87,7 @@ namespace MySQL.SmartGymTracker
 
             // Perform update query
             var (updateQueries, parametersList) = BuildUpdateQueryList(goal);
+            parametersList.Add(new MySqlParameter("@goalId", goal.GoalId));
             string sql = $"UPDATE goal SET {string.Join(", ", updateQueries)} WHERE goalId = @goalId;";
             db.ExecuteNonQuery(sql, parametersList);
 
@@ -151,7 +152,7 @@ namespace MySQL.SmartGymTracker
                     Description = Convert.ToString(row["description"]) ?? "",
                     StartDate = DateOnly.FromDateTime(Convert.ToDateTime(row["startDate"])),
                     TargetEndDate = DateOnly.FromDateTime(Convert.ToDateTime(row["targetEndDate"])),
-                    Status = (GoalStatus)Convert.ToInt32(row["status"])
+                    Status = Enum.TryParse<GoalStatus>(Convert.ToString(row["status"]), out var result) ? result : GoalStatus.Not_Started
                 };
                 goals.Add(goal);
             }
@@ -201,7 +202,7 @@ namespace MySQL.SmartGymTracker
             }
 
             querys.Add("status = @status");
-            parameters.Add(new MySqlParameter("@status", (int)goal.Status));
+            parameters.Add(new MySqlParameter("@status", goal.Status.ToString()));
 
             return (querys, parameters);
         }
@@ -255,12 +256,9 @@ namespace MySQL.SmartGymTracker
                 parameters.Add(new MySqlParameter("@targetEndDate", goal.TargetEndDate.ToString("yyyy-MM-dd")));
             }
 
-            if(goal.Status != defaultGoal.Status)
-            {
-                cols.Add("status");
-                vals.Add("@status");
-                parameters.Add(new MySqlParameter("@status", (int)goal.Status));
-            }
+            cols.Add("status");
+            vals.Add("@status");
+            parameters.Add(new MySqlParameter("@status", goal.Status.ToString()));
 
             return (cols, vals, parameters);
         }

@@ -24,7 +24,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT userId, messageId, timeSent, read FROM notification WHERE messageId = @messageId;";
+            string sql = "SELECT userId, messageId, timeSent, isRead FROM notification WHERE messageId = @messageId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@messageId", id)
@@ -40,7 +40,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT userId, messageId, timeSent, read FROM notification WHERE userId = @userId;";
+            string sql = "SELECT userId, messageId, timeSent, isRead FROM notification WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", id)
@@ -54,7 +54,7 @@ namespace MySQL.SmartGymTracker
 
         public List<Notification>? GetAll()
         {
-            string sql = "SELECT userId, messageId, timeSent, read FROM notification;";
+            string sql = "SELECT userId, messageId, timeSent, isRead FROM notification;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Notification> n = DataTableToList(dbreturn);
             if (n.Count != 0)
@@ -71,12 +71,11 @@ namespace MySQL.SmartGymTracker
             var (columnQueries, valQueries, parametersList) = BuildInsertQueryList(n);
             if (columnQueries.Count == 0 || valQueries.Count == 0 || parametersList.Count == 0)
                 return null;
-            string sql = $"INSERT INTO notification ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)}); SELECT LAST_INSERT_ID();";
-            var success = db.ExecuteScalar(sql, parametersList);
-            var validId = Convert.ToInt64(success);
+            string sql = $"INSERT INTO notification ({string.Join(", ", columnQueries)}) VALUES ({string.Join(", ", valQueries)});";
+            var success = db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
-            string selectsql = $"SELECT userId, messageId, timeSent, read FROM notification WHERE userId = @userId AND messageId = @messageId;";
+            string selectsql = $"SELECT userId, messageId, timeSent, isRead FROM notification WHERE userId = @userId AND messageId = @messageId;";
             var selparametersList = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", n.UserId),
@@ -103,13 +102,11 @@ namespace MySQL.SmartGymTracker
 
             // Perform update query
             var (updateQueries, parametersList) = BuildUpdateQueryList(n);
-            parametersList.Add(new MySqlParameter("@userId", n.UserId));
-            parametersList.Add(new MySqlParameter("@messageId", n.MessageId));
             string sql = $"UPDATE notification SET {string.Join(", ", updateQueries)} WHERE userId = @userId AND messageId = @messageId;";
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectsql = $"SELECT userId, messageId, timeSent, read FROM notification WHERE userId = @userId AND messageId = @messageId;";
+            string selectsql = $"SELECT userId, messageId, timeSent, isRead FROM notification WHERE userId = @userId AND messageId = @messageId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", n.UserId),
@@ -132,7 +129,7 @@ namespace MySQL.SmartGymTracker
         {
             if (userId <= 0 || messageId <= 0)
                 return null;
-            string selectSql = $"SELECT userId, messageId, timeSent, read FROM notification WHERE userId = @userId AND messageId = @messageId;";
+            string selectSql = $"SELECT userId, messageId, timeSent, isRead FROM notification WHERE userId = @userId AND messageId = @messageId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", userId),
@@ -167,7 +164,7 @@ namespace MySQL.SmartGymTracker
                     UserId = Convert.ToInt32(row["userId"]),
                     MessageId = Convert.ToInt32(row["messageId"]),
                     TimeSent = Convert.ToDateTime(row["timeSent"]),
-                    Read = Convert.ToBoolean(row["read"])
+                    IsRead = Convert.ToBoolean(row["isRead"])
                 };
                 n.Add(notification);
             }
@@ -180,17 +177,24 @@ namespace MySQL.SmartGymTracker
             List<string> querys = new List<string>();
             List<MySqlParameter> parameters = new List<MySqlParameter>();
 
-            if(n.TimeSent != defaultNotification.TimeSent)
+            if(n.UserId != defaultNotification.UserId) {
+                querys.Add("userId = @userId");
+                parameters.Add(new MySqlParameter("@userId", n.UserId));
+            }
+
+            if(n.MessageId != defaultNotification.MessageId) {
+                querys.Add("messageId = @messageId");
+                parameters.Add(new MySqlParameter("@messageId", n.MessageId));
+            }
+
+            if (n.TimeSent != defaultNotification.TimeSent)
             {
                 querys.Add("timeSent = @timeSent");
                 parameters.Add(new MySqlParameter("@timeSent", n.TimeSent.ToString("yyyy-MM-dd HH:mm:ss")));
             }
 
-            if(n.Read != defaultNotification.Read)
-            {
-                querys.Add("read = @read");
-                parameters.Add(new MySqlParameter("@read", n.Read));
-            }
+            querys.Add("isRead = @isRead");
+            parameters.Add(new MySqlParameter("@isRead", n.IsRead));
             
             return (querys, parameters);
         }
@@ -202,19 +206,28 @@ namespace MySQL.SmartGymTracker
             List<string> vals = new List<string>();
             List<MySqlParameter> parameters = new List<MySqlParameter>();
 
-            if(n.TimeSent != defaultNotification.TimeSent)
+            if(n.UserId != defaultNotification.UserId) {
+                cols.Add("userId");
+                vals.Add("@userId");
+                parameters.Add(new MySqlParameter("@userId", n.UserId));
+            }
+
+            if(n.MessageId != defaultNotification.MessageId) {
+                cols.Add("messageId");
+                vals.Add("@messageId");
+                parameters.Add(new MySqlParameter("@messageId", n.MessageId));
+            }
+
+            if (n.TimeSent != defaultNotification.TimeSent)
             {
                 cols.Add("timeSent");
                 vals.Add("@timeSent");
                 parameters.Add(new MySqlParameter("@timeSent", n.TimeSent.ToString("yyyy-MM-dd HH:mm:ss")));
             }
             
-            if(n.Read != defaultNotification.Read)
-            {
-                cols.Add("read");
-                vals.Add("@read");
-                parameters.Add(new MySqlParameter("@read", n.Read));
-            }
+            cols.Add("isRead");
+            vals.Add("@isRead");
+            parameters.Add(new MySqlParameter("@isRead", n.IsRead));
 
             return (cols, vals, parameters);
         }

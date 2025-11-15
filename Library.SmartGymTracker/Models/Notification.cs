@@ -11,7 +11,7 @@ namespace Library.SmartGymTracker.Models
         public int UserId { get; set; }
         public int MessageId { get; set; }
         public DateTime TimeSent { get; set; }
-        public bool Read { get; set; }
+        public bool IsRead { get; set; }
 
         // Default Constructor
         public Notification()
@@ -19,7 +19,7 @@ namespace Library.SmartGymTracker.Models
             UserId = -1;
             MessageId = -1;
             TimeSent = DateTime.MinValue;
-            Read = false;
+            IsRead = false;
         }
 
         // Copy Constructor
@@ -28,7 +28,7 @@ namespace Library.SmartGymTracker.Models
             UserId = n.UserId;
             MessageId = n.MessageId;
             TimeSent = n.TimeSent;
-            Read = n.Read;
+            IsRead = n.IsRead;
         }
     }
 }

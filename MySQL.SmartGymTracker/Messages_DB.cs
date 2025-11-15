@@ -24,7 +24,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT messageId, title, details, timeCreated, type FROM messages WHERE messageId = @nessageId;";
+            string sql = "SELECT messageId, title, details, timeCreated, type FROM messages WHERE messageId = @messageId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@messageId", id)
@@ -149,7 +149,7 @@ namespace MySQL.SmartGymTracker
                     Title = Convert.ToString(row["title"]) ?? "",
                     Details = Convert.ToString(row["details"]) ?? "",
                     TimeCreated = Convert.ToDateTime(row["timeCreated"]),
-                    Type = (MessageType)Convert.ToInt32(row["type"])
+                    Type = Enum.TryParse<MessageType>(Convert.ToString(row["type"]), out var result) ? result : MessageType.System
                 };
                 messages.Add(message);
             }
@@ -181,7 +181,7 @@ namespace MySQL.SmartGymTracker
             }
 
             querys.Add("type = @type");
-            parameters.Add(new MySqlParameter("@type", (int)messages.Type));
+            parameters.Add(new MySqlParameter("@type", messages.Type.ToString()));
 
             return (querys, parameters);
         }
@@ -216,7 +216,7 @@ namespace MySQL.SmartGymTracker
 
             cols.Add("type");
             vals.Add("@type");
-            parameters.Add(new MySqlParameter("@type", (int)messages.Type));
+            parameters.Add(new MySqlParameter("@type", messages.Type.ToString()));
 
             return (cols, vals, parameters);
         }

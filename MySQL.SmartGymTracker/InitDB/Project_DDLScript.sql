@@ -176,10 +176,10 @@ CREATE TABLE notification (
 userId       INT,
 messageId    INT,
 timeSent	 DATETIME NOT NULL,
-read		 BOOLEAN NOT NULL DEFAULT FALSE,
+isRead		 BOOLEAN NOT NULL DEFAULT FALSE,
 PRIMARY KEY (userId, messageId),
 FOREIGN KEY (userId) REFERENCES users(userId)
   ON UPDATE CASCADE ON DELETE CASCADE,
-FOREIGN KEY (messageId) REFERENCES message(messageId)
+FOREIGN KEY (messageId) REFERENCES messages(messageId)
   ON UPDATE CASCADE ON DELETE CASCADE
 );
