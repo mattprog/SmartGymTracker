@@ -54,7 +54,7 @@ namespace MySQL.SmartGymTracker
 
         public List<Notification>? GetAll()
         {
-            string sql = "userId, messageId, timeSent, read FROM notification;";
+            string sql = "SELECT userId, messageId, timeSent, read FROM notification;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<Notification> n = DataTableToList(dbreturn);
             if (n.Count != 0)

@@ -419,6 +419,144 @@ namespace MyApp
                 Console.WriteLine($"DB ERROR, should be empty: {sDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Strength Test================");
             Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Goal tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Goal==================");
+            Goal g = new Goal()
+            {
+                UserId = 2,
+                TimeCreated = DateTime.Now,
+                Title = "NewGoal1",
+                Description = "NewGoalDesc",
+                StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                TargetEndDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(1)),
+                Status = GoalStatus.Not_Started
+            };
+            Goal_DB gDb = new Goal_DB();
+            g = gDb.Add(g) ?? new Goal();
+            if (g == new Goal())
+                Console.WriteLine($"DB ERROR: {gDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Goal ADD ID: {g.GoalId}");
+            g.Description = "Updated Description";
+            g = gDb.Update(g) ?? new Goal();
+            if (g == new Goal())
+                Console.WriteLine($"DB ERROR: {gDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Goal UPDATE Description: {g.Description}");
+            Goal tempG = new Goal(g);
+            g.StartDate = g.StartDate.AddYears(20);
+            tempG = gDb.Add(tempG) ?? new Goal();
+            List<Goal> gInDb = gDb.GetAll() ?? new List<Goal>();
+            if (gInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {gDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Goal IN DB COUNT: {gInDb.Count}");
+            g = gDb.GetById(g.GoalId) ?? new Goal();
+            if (g == new Goal())
+                Console.WriteLine($"DB ERROR: {gDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Goal GETBYID Description: {g.Description}");
+            gDb.Delete(g.GoalId);
+            List<Goal> gAfterDelete = gDb.GetAll() ?? new List<Goal>();
+            if (gAfterDelete.Count != 0)
+                Console.WriteLine($"Success, should be empty: {gDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {gAfterDelete.Count}");
+            Console.WriteLine("===============END OF TESTING: Goal Test================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Messages tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Messages==================");
+            Messages me = new Messages()
+            {
+                Title = "NewMsg",
+                Details = "NewMsgDetails",
+                TimeCreated = DateTime.Now,
+                Type = MessageType.Goal
+            };
+            Messages_DB meDb = new Messages_DB();
+            me = meDb.Add(me) ?? new Messages();
+            if (me == new Messages())
+                Console.WriteLine($"DB ERROR: {meDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Messages ADD ID: {me.MessageId}");
+            me.Title = "Updated Title";
+            me = meDb.Update(me) ?? new Messages();
+            if (me == new Messages())
+                Console.WriteLine($"DB ERROR: {meDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Messages UPDATE Title: {me.Title}");
+            Messages tempMe = new Messages(me);
+            tempMe.Type = MessageType.Tip;
+            tempMe = meDb.Add(tempMe) ?? new Messages();
+            List<Messages> meInDb = meDb.GetAll() ?? new List<Messages>();
+            if (meInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {meDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Messages IN DB COUNT: {meInDb.Count}");
+            me = meDb.GetById(me.MessageId) ?? new Messages();
+            if (me == new Messages())
+                Console.WriteLine($"DB ERROR: {meDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Messages GETBYID Status: {me.Type}");
+            meDb.Delete(me.MessageId);
+            List<Messages> meAfterD = meDb.GetAll() ?? new List<Messages>();
+            if (meAfterD.Count != 0)
+                Console.WriteLine($"Success, should be empty: {meDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {meAfterD.Count}");
+            Console.WriteLine("===============END OF TESTING: Messages Test================");
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to Messages tests...");
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: Notification==================");
+            Notification n = new Notification()
+            {
+                UserId = 2,
+                MessageId = 2,
+                TimeSent = DateTime.Now,
+                Read = false
+            };
+            Notification_DB nDb = new Notification_DB();
+            n = nDb.Add(n) ?? new Notification();
+            if (n == new Notification())
+                Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Notification IDS: {n.UserId} {n.MessageId}");
+            n.Read = true;
+            n = nDb.Update(n) ?? new Notification();
+            if (n == new Notification())
+                Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Notificaiton UPDATE Read: {n.Read}");
+            Notification tempN = new Notification(n);
+            List<Notification> nInDb = nDb.GetAll() ?? new List<Notification>();
+            if (nInDb.Count == 0)
+                Console.WriteLine($"DB ERROR: {nDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Notification IN DB COUNT: {nInDb.Count}");
+            List<Notification> nUsers = nDb.GetByUserId(n.UserId) ?? new List<Notification>();
+            if (n == new Notification())
+                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Notificaiton GETBYUserID: {nUsers.Count}");
+            List<Notification> nMessage = nDb.GetByMessageId(n.MessageId) ?? new List<Notification>();
+            if (n == new Notification())
+                Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"Notificaiton GETBYNotificationID: {nMessage.Count}");
+            sDb.Delete(s.ExerciseSetId);
+            List<Notification> nAfterDb = nDb.GetAll() ?? new List<Notification>();
+            if (nAfterDb.Count == 0)
+                Console.WriteLine($"Success: Empty Notification IN DB AFTER DELETE COUNT: {nAfterDb.Count}");
+            else
+                Console.WriteLine($"DB ERROR, should be empty: {nDb.getLastErrorMessage()}");
+            Console.WriteLine("===============END OF TESTING: Notification Test================");
+            Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("===============END OF TESTING================");
         }
