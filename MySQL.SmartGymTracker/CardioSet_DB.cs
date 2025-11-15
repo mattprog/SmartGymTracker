@@ -20,7 +20,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId AND e.exerciseSetId = @exerciseSetId;";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", id)
@@ -34,7 +34,7 @@ namespace MySQL.SmartGymTracker
 
         public List<CardioSet>? GetAll()
         {
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId;";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.setType = 'Cardio';";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<CardioSet> biometrics = DataTableToList(dbreturn);
             if(biometrics.Count != 0)
@@ -69,7 +69,7 @@ namespace MySQL.SmartGymTracker
             var (queriestemp, selparametersListtemp) = BuildUpdateQueryList(cardioSet);
             queries.AddRange(queriestemp);
             selparametersList.AddRange(selparametersListtemp);
-            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId AND c.exerciseSetId = @exerciseSetId;";
+            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
             selparametersList.Add(new MySqlParameter("@exerciseSetId", cardioSet.ExerciseSetId));
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
@@ -102,7 +102,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId AND c.exerciseSetId = @exerciseSetId;";
+            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", cardioSet.ExerciseSetId),
@@ -126,7 +126,7 @@ namespace MySQL.SmartGymTracker
             if (exerciseSetId <= 0)
                 return null;
 
-            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM exercise_set e JOIN cardio_set c WHERE e.exerciseSetId = c.exerciseSetId AND c.exerciseSetId = @exerciseSetId;";
+            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", exerciseSetId)
@@ -190,6 +190,10 @@ namespace MySQL.SmartGymTracker
                 querys.Add("notes = @notes");
                 parameters.Add(new MySqlParameter("@notes", cardioSet.Notes));
             }
+
+            querys.Add("setType = @setType");
+            parameters.Add(new MySqlParameter("@setType", "Cardio"));
+
             return (querys, parameters);
         }
 
@@ -236,6 +240,11 @@ namespace MySQL.SmartGymTracker
                 vals.Add("@notes");
                 parameters.Add(new MySqlParameter("@notes", cardioSet.Notes));
             }
+
+            cols.Add("setType");
+            vals.Add("@setType");
+            parameters.Add(new MySqlParameter("@setType", "Cardio"));
+
             return (cols, vals, parameters);
         }
 
