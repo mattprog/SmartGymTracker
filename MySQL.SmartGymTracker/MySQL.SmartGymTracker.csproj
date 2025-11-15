@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="TestDB\tests.txt" />
+    <Compile Include="TestDB\emptyDB_CRUD_tests.txt" />
   </ItemGroup>
 
   <ItemGroup>

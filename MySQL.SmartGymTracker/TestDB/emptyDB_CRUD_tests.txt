@@ -12,6 +12,9 @@ namespace MyApp
 {
     internal class Program
     {
+        
+        //This script is to be tested using an EMPTY DATABASE for basic CRUD operations.
+        
         static void Main(string[] args)
         {
             Console.WriteLine("==================TESTING: User==================");
