@@ -38,6 +38,26 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
+
+        public List<Goal>? GetByUserId(int userId)
+        {
+            if (userId <= 0)
+                return null;
+            string sql = "SELECT goalId, userId, timeCreated, title, description, startDate, targetEndDate, status FROM goal WHERE userId = @userId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@userId", userId)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<Goal> goals = DataTableToList(dbreturn);
+            if (goals.Count != 0)
+            {
+                return goals;
+            }
+            return null;
+        }
+
+
         public List<Goal>? GetAll()
         {
             string sql = "SELECT goalId, userId, timeCreated, title, description, startDate, targetEndDate, status FROM goal;";

@@ -33,6 +33,26 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
+
+        public List<WorkoutBiometrics>? GetByWorkoutId(int workoutId)
+        {
+            if (workoutId <= 0)
+                return null;
+            string sql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepscore FROM workout_biometrics WHERE workoutId = @workoutId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", workoutId)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<WorkoutBiometrics> biometrics = DataTableToList(dbreturn);
+            if (biometrics.Count != 0)
+            {
+                return biometrics;
+            }
+            return null;
+        }
+
+
         public List<WorkoutBiometrics>? GetAll()
         {
             string sql = "SELECT workoutId, steps, averageHeartRate, maxHeartRate, caloriesBurned, feeling, sleepscore FROM workout_biometrics;";

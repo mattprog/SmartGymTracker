@@ -32,6 +32,38 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
+        public List<CardioSet>? GetByWorkoutId(int workoutId)
+        {
+            if (workoutId <= 0)
+                return null;
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.workoutId = @workoutId AND e.setType = 'Cardio';";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@workoutId", workoutId)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<CardioSet> cardioSets = DataTableToList(dbreturn);
+            if (cardioSets.Count != 0)
+                return cardioSets;
+            return null;
+        }
+
+        public List<CardioSet>? GetByExerciseId(int exerciseId)
+        {
+            if (exerciseId <= 0)
+                return null;
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.exerciseId = @exerciseId AND e.setType = 'Cardio';";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@exerciseId", exerciseId)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<CardioSet> cardioSets = DataTableToList(dbreturn);
+            if (cardioSets.Count != 0)
+                return cardioSets;
+            return null;
+        }
+
         public List<CardioSet>? GetAll()
         {
             string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.setType = 'Cardio';";
