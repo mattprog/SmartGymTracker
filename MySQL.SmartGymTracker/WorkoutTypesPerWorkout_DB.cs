@@ -20,7 +20,7 @@ namespace MySQL.SmartGymTracker
         {
             if (workoutId <= 0)
                 return null;
-            string sql = "SELECT workoutId, workoutTypeId FROM workout_workoutType WHERE workoutId = @workoutId;";
+            string sql = "SELECT workoutId, workoutTypeId FROM workout_types_per_workout WHERE workoutId = @workoutId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workoutId)
@@ -36,7 +36,7 @@ namespace MySQL.SmartGymTracker
         {
             if (workoutTypeId <= 0)
                 return null;
-            string sql = "SELECT workoutId, workoutTypeId FROM workout_workoutType WHERE workoutTypeId = @workoutTypeId;";
+            string sql = "SELECT workoutId, workoutTypeId FROM workout_types_per_workout WHERE workoutTypeId = @workoutTypeId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutTypeId", workoutTypeId)
@@ -50,7 +50,7 @@ namespace MySQL.SmartGymTracker
 
         public List<List<int>>? GetAll()
         {
-            string sql = "SELECT workoutId, workoutTypeId FROM workout_workoutType;";
+            string sql = "SELECT workoutId, workoutTypeId FROM workout_types_per_workout;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<List<int>>? workout = DataTableToList(dbreturn);
             if (workout.Count != 0)
@@ -62,7 +62,7 @@ namespace MySQL.SmartGymTracker
         {
             if (workoutId <= 0 || workoutTypeId <= 0)
                 return false;
-            string sql = "INSERT INTO workout_workoutType (workoutId, workoutTypeId) VALUES (@workoutId, @workoutTypeId);";
+            string sql = "INSERT INTO workout_types_per_workout (workoutId, workoutTypeId) VALUES (@workoutId, @workoutTypeId);";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workoutId),
@@ -76,7 +76,7 @@ namespace MySQL.SmartGymTracker
         {
             if(oldWorkoutId <= 0 || newWorkoutId <= 0 || oldWorkoutTypeId <= 0 || newWorkoutTypeId <= 0)
                 return false;
-            string sql = "UPDATE workout_workoutType SET workoutId = @newWorkoutId, workoutTypeId = @newWorkoutTypeId WHERE workoutId = @oldWorkoutId AND workoutTypeId = @oldWorkoutTypeId;";
+            string sql = "UPDATE workout_types_per_workout SET workoutId = @newWorkoutId, workoutTypeId = @newWorkoutTypeId WHERE workoutId = @oldWorkoutId AND workoutTypeId = @oldWorkoutTypeId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@newWorkoutId", newWorkoutId),
@@ -92,7 +92,7 @@ namespace MySQL.SmartGymTracker
         {
             if (workoutId <= 0 || workoutTypeId <= 0)
                 return false;
-            string sql = "DELETE FROM workout_workoutType WHERE workoutId = @workoutId AND workoutTypeId = @workoutTypeId;";
+            string sql = "DELETE FROM workout_types_per_workout WHERE workoutId = @workoutId AND workoutTypeId = @workoutTypeId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workoutId),

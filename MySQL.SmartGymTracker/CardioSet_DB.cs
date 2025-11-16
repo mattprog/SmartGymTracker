@@ -20,7 +20,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.exerciseSetId = @exerciseSetId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", id)
@@ -36,7 +36,7 @@ namespace MySQL.SmartGymTracker
         {
             if (workoutId <= 0)
                 return null;
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.workoutId = @workoutId AND e.setType = 'Cardio';";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.workoutId = @workoutId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@workoutId", workoutId)
@@ -52,7 +52,7 @@ namespace MySQL.SmartGymTracker
         {
             if (exerciseId <= 0)
                 return null;
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.exerciseId = @exerciseId AND e.setType = 'Cardio';";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.exerciseId = @exerciseId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseId", exerciseId)
@@ -66,7 +66,7 @@ namespace MySQL.SmartGymTracker
 
         public List<CardioSet>? GetAll()
         {
-            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE e.setType = 'Cardio';";
+            string sql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId;";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<CardioSet> biometrics = DataTableToList(dbreturn);
             if(biometrics.Count != 0)
@@ -101,7 +101,7 @@ namespace MySQL.SmartGymTracker
             var (queriestemp, selparametersListtemp) = BuildUpdateQueryList(cardioSet);
             queries.AddRange(queriestemp);
             selparametersList.AddRange(selparametersListtemp);
-            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
+            string selectsql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId;";
             selparametersList.Add(new MySqlParameter("@exerciseSetId", cardioSet.ExerciseSetId));
             var result = db.ExecuteSelect(selectsql, selparametersList);
 
@@ -134,7 +134,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
+            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", cardioSet.ExerciseSetId),
@@ -158,7 +158,7 @@ namespace MySQL.SmartGymTracker
             if (exerciseSetId <= 0)
                 return null;
 
-            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId AND e.setType = 'Cardio';";
+            string selectSql = "SELECT e.exerciseSetId, e.workoutId, e.exerciseId, e.notes, c.duration, c.distance FROM cardio_set c JOIN exercise_set e ON e.exerciseSetId = c.exerciseSetId WHERE c.exerciseSetId = @exerciseSetId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@exerciseSetId", exerciseSetId)

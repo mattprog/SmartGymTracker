@@ -12,6 +12,7 @@ namespace MyApp
 {
     internal class Program
     {
+        // READ - FK section, Intended for use with Project_DML_Script.sql, but will work without it
         static void Main(string[] args)
         {
             Console.WriteLine("Press ENTER to continue to CREATE tests...");
@@ -108,7 +109,12 @@ namespace MyApp
             else
                 Console.WriteLine($"\tWorkout ADD ID: {w.WorkoutId}");
             Console.WriteLine("TABLE: workout_types_per_workout");
-            Console.WriteLine("\t(NO TESTING FOR WORKOUT TYPES PER WORKOUT - HANDLED IN WORKOUT)");
+            WorkoutTypesPerWorkout_DB wtpwDb = new WorkoutTypesPerWorkout_DB();
+            bool wtpwResult = wtpwDb.Add(w.WorkoutId, wt.WorkoutTypeId);
+            if (!wtpwResult)
+                Console.WriteLine($"\tDB ERROR: {wtpwDb.getLastErrorMessage()}");
+            else
+                Console.WriteLine($"\tSuccess, WorkoutTypesPerWorkout ADD IDS: {w.WorkoutId} {wt.WorkoutTypeId}");
             Console.WriteLine("TABLE: workout_biometrics");
             WorkoutBiometrics wb = new WorkoutBiometrics()
             {
@@ -251,7 +257,16 @@ namespace MyApp
             else
                 Console.WriteLine($"\tWorkout UPDATE Notes: {w.Notes}");
             Console.WriteLine("TABLE: workout_types_per_workout");
-            Console.WriteLine("\t(NO TESTING FOR WORKOUT TYPES PER WORKOUT - HANDLED IN WORKOUT)");
+            Console.WriteLine("\t(NO TESTING FOR WORKOUT TYPES PER WORKOUT)");
+            // Uncomment for UPDATE testing - ONLY USER WITH DML Script Added
+            /*
+            bool wtpwUpdateResult = wtpwDb.Update(w.WorkoutId, 1, wt.WorkoutTypeId, 5);
+            if(wtpwUpdateResult)
+                Console.WriteLine($"\tWorkoutTypesPerWorkout UPDATE WorkoutTypeId to: {wt.WorkoutTypeId}");
+            else
+                Console.WriteLine($"\tDB ERROR: {wtpwDb.getLastErrorMessage()}");
+            wtpwDb.Update(1, w.WorkoutId, 5, wt.WorkoutTypeId);
+            */
             Console.WriteLine("TABLE: workout_biometrics");
             wb.CaloriesBurned = 167;
             wb = wbDb.Update(wb) ?? new WorkoutBiometrics();
@@ -363,7 +378,8 @@ namespace MyApp
             else
                 Console.WriteLine($"\tWorkout GETBYID Notes: {w.Notes}");
             Console.WriteLine("TABLE: workout_types_per_workout");
-            Console.WriteLine("\t(NO TESTING FOR WORKOUT TYPES PER WORKOUT - HANDLED IN WORKOUT)");
+            List<List<int>> wtpwInDb = wtpwDb.GetAll() ?? new List<List<int>>();
+            Console.WriteLine($"\tWorkout Types Per Workout IN DB COUNT: {wtpwInDb.Count}");
             Console.WriteLine("TABLE: workout_biometrics");
             // READ - GET ALL
             List<WorkoutBiometrics> wbInDb = wbDb.GetAll() ?? new List<WorkoutBiometrics>();
@@ -437,6 +453,60 @@ namespace MyApp
                 Console.WriteLine($"\tNotification GETBYNotificationID: {nMessage.Count}");
             Console.WriteLine("===============END OF TESTING: READ================");
             Console.WriteLine();
+            Console.WriteLine("Press ENTER to continue to READ - FK tests..."); 
+            Console.ReadLine();
+            Console.WriteLine();
+            Console.WriteLine("==================TESTING: READ - FK ==================");
+            Console.WriteLine("TABLE: exercise");
+            // READ - GET BY Muscle ID
+            List<Exercise> eFk_muscleid = eDb.GetByMuscleId(1) ?? new List<Exercise>();
+            Console.WriteLine($"\tNotification GETBYMuscleID: {eFk_muscleid.Count}, Intended: 1");
+            Console.WriteLine("TABLE: cardio_set");
+            // READ - GET BY Workout ID
+            List<CardioSet> cFk_workoutid = cDb.GetByWorkoutId(1) ?? new List<CardioSet>();
+            Console.WriteLine($"\tNotification GETBYWorkoutID: {cFk_workoutid.Count}, Intended: 2");
+            // READ - GET BY Exercise ID
+            List<CardioSet> cFk_exerciseid = cDb.GetByExerciseId(1) ?? new List<CardioSet>();
+            Console.WriteLine($"\tNotification GETBYExerciseID: {cFk_exerciseid.Count}, Intended: 1");
+            Console.WriteLine("TABLE: strength_set");
+            // READ - GET BY Workout ID
+            List<StrengthSet> sFk_workoutid = sDb.GetByWorkoutId(1) ?? new List<StrengthSet>();
+            Console.WriteLine($"\tNotification GETBYWorkoutID: {sFk_workoutid.Count}, Intended: 3");
+            // READ - GET BY Exercise ID
+            List<StrengthSet> sFk_exerciseid = sDb.GetByExerciseId(1) ?? new List<StrengthSet>();
+            Console.WriteLine($"\tNotification GETBYExerciseID: {sFk_exerciseid.Count}, Intended: 2");
+            Console.WriteLine("TABLE: workout_types_per_workout");
+            // READ - GET BY Workout ID
+            List<List<int>> wtpwFk_workoutid = wtpwDb.GetByWorkoutId(1) ?? new List<List<int>>();
+            Console.WriteLine($"\tNotification GETBYWorkoutID: {wtpwFk_workoutid.Count}, Intended: 1");
+            // READ - GET BY WorkoutType ID
+            List<List<int>> wtpwFk_workouttypeid = wtpwDb.GetByWorkoutTypeId(1) ?? new List<List<int>>();
+            Console.WriteLine($"\tNotification GETBYWorkoutTypeID: {wtpwFk_workouttypeid.Count}, Intended: 8");
+            Console.WriteLine("TABLE: workout");
+            // READ - GET BY USER ID
+            List<Workout> wFk_userid = wDb.GetByUserId(1) ?? new List<Workout>();
+            Console.WriteLine($"\tNotification GETBYUserID: {wFk_userid.Count}, Intended: 4");
+            Console.WriteLine("TABLE: workout_biometrics");
+            // READ - GET BY WORKOUT ID
+            List<WorkoutBiometrics> wbFk_workoutid = wbDb.GetByWorkoutId(1) ?? new List<WorkoutBiometrics>();
+            Console.WriteLine($"\tNotification GETBYWorkoutID: {wbFk_workoutid.Count}, Intended: 1");
+            Console.WriteLine("TABLE: biometrics");
+            // READ - GET BY USER ID
+            List<Biometrics> bFk_userid = bioDb.GetByUserId(1) ?? new List<Biometrics>();
+            Console.WriteLine($"\tNotification GETBYUserID: {bFk_userid.Count}, Intended: 3");
+            Console.WriteLine("TABLE: goal");
+            // READ - GET BY USER ID
+            List<Goal> gFk_userid = gDb.GetByUserId(1) ?? new List<Goal>();
+            Console.WriteLine($"\tNotification GETBYUserID: {gFk_userid.Count}, Intended: 4");
+            Console.WriteLine("TABLE: notification");
+            // READ - GET BY USER ID
+            List<Notification> nFk_userid = nDb.GetByUserId(1) ?? new List<Notification>();
+            Console.WriteLine($"\tNotification GETBYUserID: {nFk_userid.Count}, Intended: 4");
+            // READ - GET BY MESSAGE ID
+            List<Notification> nFk_messageid = nDb.GetByMessageId(1) ?? new List<Notification>();
+            Console.WriteLine($"\tNotification GETBYMessageID: {nFk_messageid.Count}, Intended: 2");
+            Console.WriteLine("===============END OF TESTING: READ - FK ================");
+            Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to DELETE tests...");
             Console.ReadLine();
             Console.WriteLine();
@@ -468,7 +538,9 @@ namespace MyApp
             List<WorkoutBiometrics> wbAfterD = wbDb.GetAll() ?? new List<WorkoutBiometrics>();
             Console.WriteLine($"\tWorkoutBiometric IN DB AFTER DELETE COUNT: {wbAfterD.Count}");
             Console.WriteLine("TABLE: workout_types_per_workout");
-            Console.WriteLine("\t(NO TESTING FOR WORKOUT TYPES PER WORKOUT - HANDLED IN WORKOUT)");
+            wtpwDb.Delete(w.WorkoutId, wt.WorkoutTypeId);
+            List<List<int>> wtpwAfterD = wtpwDb.GetAll() ?? new List<List<int>>();
+            Console.WriteLine($"\tWorkoutTypesPerWorkout IN DB AFTER DELETE COUNT: {wtpwAfterD.Count}");
             Console.WriteLine("TABLE: workout");
             wDb.Delete(w.WorkoutId);
             List<Workout> wAfterD = wDb.GetAll() ?? new List<Workout>();
