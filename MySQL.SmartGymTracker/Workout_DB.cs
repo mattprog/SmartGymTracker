@@ -32,6 +32,24 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
+
+        public List<Workout>? GetByUserId(int userId)
+        {
+            if (userId <= 0)
+                return null;
+            string sql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout WHERE userId = @userId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@userId", userId)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<Workout> workout = DataTableToList(dbreturn);
+            if (workout.Count != 0)
+                return workout;
+            return null;
+        }
+
+
         public List<Workout>? GetAll()
         {
             string sql = "SELECT workoutId, userId, workoutStart, duration, notes FROM workout;";
@@ -41,19 +59,7 @@ namespace MySQL.SmartGymTracker
                 return workout;
             return null;
         }
-        public bool LinkWorkoutToWorkoutType(int workoutId, int workoutTypeId)
-        {
-            if (workoutId <= 0 || workoutTypeId <= 0)
-                return false;
-            string sql = "INSERT INTO workout_workoutType (workoutId, workoutTypeId) VALUES (@workoutId, @workoutTypeId);";
-            var parameters = new List<MySqlParameter>
-            {
-                new MySqlParameter("@workoutId", workoutId),
-                new MySqlParameter("@workoutTypeId", workoutTypeId)
-            };
-            db.ExecuteNonQuery(sql, parameters);
-            return true;
-        }
+
 
         public Workout? Add(Workout workout)
         {

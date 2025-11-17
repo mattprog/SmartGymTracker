@@ -31,6 +31,22 @@ namespace MySQL.SmartGymTracker
             return null;
         }
 
+        public List<Exercise>? GetByMuscleId(int muscleId)
+        {
+            if (muscleId <= 0)
+                return null;
+            string sql = "SELECT exerciseId, muscleId, exerciseName, description FROM exercise WHERE muscleId = @muscleId;";
+            var parameters = new List<MySqlParameter>
+            {
+                new MySqlParameter("@muscleId", muscleId)
+            };
+            var dbreturn = db.ExecuteSelect(sql, parameters);
+            List<Exercise> exercise = DataTableToList(dbreturn);
+            if (exercise.Count != 0)
+                return exercise;
+            return null;
+        }
+
         public List<Exercise>? GetAll()
         {
             string sql = "SELECT exerciseId, muscleId, exerciseName, description FROM exercise;";

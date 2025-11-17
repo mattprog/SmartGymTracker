@@ -24,6 +24,8 @@ namespace Library.SmartGymTracker.Models
         public string Gender { get; set; }
         public PrivilegeLevel Privilege { get; set; }
 
+        public bool Active { get; set; }
+
         // Default Constructor
         public User()
         {
@@ -37,6 +39,7 @@ namespace Library.SmartGymTracker.Models
             DateOfBirth = DateOnly.MinValue;
             Gender = string.Empty;
             Privilege = PrivilegeLevel.User;
+            Active = true;
         }
 
         // Copy Constructor
@@ -52,6 +55,7 @@ namespace Library.SmartGymTracker.Models
             DateOfBirth = u.DateOfBirth;
             Gender = u.Gender;
             Privilege = u.Privilege;
+            Active = u.Active;
         }
     }
 }
