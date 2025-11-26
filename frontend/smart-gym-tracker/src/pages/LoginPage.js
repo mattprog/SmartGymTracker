@@ -24,13 +24,15 @@ const LoginPage = ({ setCurrentPage }) => {
       }   else if (username === "matthew") {
         setMessage("Invalid username or password.");
       } else {
-        setCurrentPage("dashboard"); // any other login → user dashboard
+        setCurrentPage("dashboard"); // any other login > user dashboard
       }
     }, 1000);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-blue-600 px-4">
+
+      
       {/* Heading inside the blue background */}
       <div className="text-3xl font-bold text-white mb-8 flex items-center gap-2">
         SmartGymTracker <FaDumbbell size={32} />
@@ -38,6 +40,9 @@ const LoginPage = ({ setCurrentPage }) => {
           <div className="ml-2 w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
         )}
       </div>
+
+
+
 
       {/* Form Card */}
       <div className="bg-white shadow-md rounded p-6 max-w-md w-full">

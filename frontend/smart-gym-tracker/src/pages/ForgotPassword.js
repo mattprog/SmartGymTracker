@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
+import { resetPassword } from "../services/AuthService"; // make sure this exists
 
 const ForgotPassword = ({ setCurrentPage }) => {
   const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [countdown, setCountdown] = useState(60);
 
@@ -14,12 +17,23 @@ const ForgotPassword = ({ setCurrentPage }) => {
     return () => clearInterval(timer);
   }, [sent, countdown]);
 
-  const handleSend = () => {
-    if (!email) return alert("Please enter your email");
-    // Simulate sending email
-    alert(`Password reset link sent to ${email}`);
-    setSent(true);
-    setCountdown(60);
+  const handleSend = async () => {
+    if (!email || !newPassword) {
+      return alert("Please enter both email and new password");
+    }
+
+    setLoading(true);
+    try {
+      await resetPassword(email, newPassword);
+      alert(`Password successfully reset for ${email}`);
+      setSent(true);
+      setCountdown(60);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to reset password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleResend = () => {
@@ -39,7 +53,7 @@ const ForgotPassword = ({ setCurrentPage }) => {
 
         <h2 className="text-2xl font-bold mb-4">Forgot Password</h2>
         <p className="text-gray-700 mb-6">
-           Enter the email associated with your account, and we’ll send a password reset link.
+          Enter the email associated with your account and your new password.
         </p>
 
         <input
@@ -50,17 +64,28 @@ const ForgotPassword = ({ setCurrentPage }) => {
           className="border rounded px-4 py-2 w-full mb-4"
         />
 
+        <input
+          type="password"
+          placeholder="Enter new password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="border rounded px-4 py-2 w-full mb-4"
+        />
+
         <button
           onClick={handleSend}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 mb-4"
+          className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 mb-4 flex items-center justify-center"
         >
+          {loading && (
+            <div className="mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          )}
           Send Reset Link
         </button>
 
         {sent && (
           <p className="text-gray-700 text-sm">
             {countdown > 0
-              ? `Didn't receive email? Resend in ${countdown}s`
+              ? `Password reset sent. Resend in ${countdown}s`
               : <button onClick={handleResend} className="text-blue-600 underline">Resend</button>}
           </p>
         )}
@@ -70,3 +95,4 @@ const ForgotPassword = ({ setCurrentPage }) => {
 };
 
 export default ForgotPassword;
+
