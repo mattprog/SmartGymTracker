@@ -1,8 +1,7 @@
-﻿/*
+/*
  *  This is a simple console test file used to test all the CRUD features
  *    of the database tables.
  */
-/*
 using System;
 using System.Diagnostics;
 using Library.SmartGymTracker.Models;
@@ -414,12 +413,12 @@ namespace MyApp
                 Console.WriteLine($"DB ERROR: {sDb.getLastErrorMessage()}");
             else
                 Console.WriteLine($"StrengthSet GETBYID Weight: {s.Weight}");
-            sDb.Delete(s.ExerciseSetId);
+            sDb.Delete(s.ExerciseSetId, s.SetNumber);
             List<StrengthSet> sAfterD = sDb.GetAll() ?? new List<StrengthSet>();
-            if (sAfterD.Count == 0)
-                Console.WriteLine($"Success: Empty StrengthSet IN DB AFTER DELETE COUNT: {sAfterD.Count}");
+            if (sAfterD.Count == 1)
+                Console.WriteLine($"SUCCESS: StrengthSet IN DB AFTER DELETE COUNT: {sAfterD.Count}");
             else
-                Console.WriteLine($"DB ERROR, should be empty: {sDb.getLastErrorMessage()}");
+                Console.WriteLine($"DB ERROR, count should be 1: {sDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Strength Test================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Goal tests...");
@@ -463,10 +462,10 @@ namespace MyApp
                 Console.WriteLine($"Goal GETBYID Description: {g.Description}");
             gDb.Delete(g.GoalId);
             List<Goal> gAfterDelete = gDb.GetAll() ?? new List<Goal>();
-            if (gAfterDelete.Count != 0)
-                Console.WriteLine($"Success, should be empty: {gAfterDelete.Count}");
+            if (gAfterDelete.Count == 1)
+                Console.WriteLine($"Success, 1 remaining in DB: {gAfterDelete.Count}");
             else
-                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {gDb.getLastErrorMessage()}");
+                Console.WriteLine($"DB ERROR: Goals IN DB AFTER DELETE COUNT != 1: {gDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Goal Test================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Messages tests...");
@@ -507,10 +506,10 @@ namespace MyApp
                 Console.WriteLine($"Messages GETBYID Status: {me.Type}");
             meDb.Delete(me.MessageId);
             List<Messages> meAfterD = meDb.GetAll() ?? new List<Messages>();
-            if (meAfterD.Count != 0)
-                Console.WriteLine($"Success, should be empty: {meAfterD.Count}");
+            if (meAfterD.Count == 1)
+                Console.WriteLine($"Success, 1 left in DB: {meAfterD.Count}");
             else
-                Console.WriteLine($"DB ERROR: Empty Messages IN DB AFTER DELETE COUNT: {meDb.getLastErrorMessage()}");
+                Console.WriteLine($"DB ERROR: Messages IN DB AFTER DELETE COUNT != 1: {meDb.getLastErrorMessage()}");
             Console.WriteLine("===============END OF TESTING: Messages Test================");
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue to Messages tests...");
@@ -565,4 +564,3 @@ namespace MyApp
         }
     }
 }
-*/
