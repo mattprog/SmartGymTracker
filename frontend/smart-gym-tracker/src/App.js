@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaUser, FaDumbbell, FaPlus, FaHeart, FaChartLine, FaSignOutAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaUser, FaDumbbell, FaPlus, FaHeart, FaChartLine, FaSignOutAlt, FaArrowLeft, FaHome } from 'react-icons/fa';
 import './App.css';
 import WorkoutPage from './pages/WorkoutPage';
 import BiometricPage from './pages/BiometricPage';
@@ -10,6 +10,8 @@ import RegistrationPage from './pages/RegistrationPage';
 import LoginPage from './pages/LoginPage';
 import UserManagement from './pages/UserManagement';
 import ForgotPassword from './pages/ForgotPassword';
+import Dashboard from './pages/Dashboard';
+import SmartTips from './pages/SmartTips';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard'); 
@@ -32,30 +34,44 @@ function App() {
           {currentPage === "login" && <LoginPage setCurrentPage={setCurrentPage} />}
           {currentPage === "registration" && <RegistrationPage setCurrentPage={setCurrentPage} />}
           {currentPage === "forgotPassword" && <ForgotPassword setCurrentPage={setCurrentPage} />}
+          
         </div>
       ) : (
         <div className="flex flex-col h-screen bg-gray-100">
 
-          {/* Top Blue Bar */}
+
+
+          {/* Top Blue Bar - FIXED */}
           {displayBars && (
-            <div className="bg-blue-600 text-white flex items-center justify-between px-4 py-3 shadow-md">
+            <div className="fixed top-0 left-0 right-0 bg-blue-600 text-white flex items-center justify-between px-4 py-3 shadow-md z-50">
               <FaUser size={24} onClick={() => setCurrentPage('profile')} className="cursor-pointer"/>
               <h1 className="text-xl font-bold">SmartGymTracker</h1>
               <div className="flex items-center gap-3">
-                <FaDumbbell size={24} onClick={() => setCurrentPage('smarttips')} className="cursor-pointer" />
                 <FaSignOutAlt size={24} onClick={handleLogout} className="cursor-pointer" />
               </div>
             </div>
           )}
 
-          {/* Main Content */}
-          <div className="flex-1 p-6">
 
-            {currentPage === 'dashboard' && <div>Dashboard Content</div>}
-            {currentPage === 'profile' && <Profile />}
+
+           {/* Profile Page (fullscreen, not scrollable) */}
+          {currentPage === 'profile' && (
+          <div className="flex-1 bg-blue-600 flex flex-col">
+          <Profile setCurrentPage={setCurrentPage} />
+          </div>
+            )}
+          
+
+
+
+          {/* Main Content - scrollable */}
+          <div className="flex-1 overflow-auto pt-16 pb-16 px-6">
+            {currentPage === 'dashboard' && <Dashboard />}
+      
             {currentPage === 'workout' && <WorkoutPage />}
             {currentPage === 'biometric' && <BiometricPage />}
             {currentPage === 'progress' && <Progress />}
+            {currentPage === 'smarttips' && <SmartTips />}
 
             {currentPage === 'admin' && (
               <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6 w-full">
@@ -84,12 +100,9 @@ function App() {
                 </div>
               </div>
             )}
-
-            {/* Admin Dashboard */}
+            
             {currentPage === "adminDashboard" && (
               <div className="flex flex-col h-full bg-gray-100">
-
-                {/* Top Blue Bar FULL WIDTH */}
                 <div className="fixed top-0 left-0 right-0 bg-blue-600 text-white flex items-center justify-between px-6 py-3 shadow-md z-50">
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     SmartGymTracker <FaDumbbell size={28} />
@@ -97,7 +110,6 @@ function App() {
                   <FaSignOutAlt size={24} onClick={handleLogout} className="cursor-pointer" />
                 </div>
 
-                {/* Spacer for fixed bar */}
                 <div className="h-16"></div>
 
                 <p className="text-gray-700 text-3xl font-extrabold mt-6 mb-8 text-center">
@@ -129,9 +141,15 @@ function App() {
             )}
           </div>
 
-          {/* Bottom Blue Bar */}
+          
+
+          {/* Bottom Blue Bar - FIXED */}
           {displayBars && (
-            <div className="bg-blue-600 text-white flex items-center justify-around px-4 py-3 shadow-inner">
+            <div className="fixed bottom-0 left-0 right-0 bg-blue-600 text-white flex items-center justify-around px-4 py-3 shadow-inner z-50">
+              <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('dashboard')}>
+                <FaHome size={24} className="mb-1" />
+                <span className="text-sm">Home</span>
+              </div>
               <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('biometric')}>
                 <FaHeart size={24} className="mb-1" />
                 <span className="text-sm">Biometrics</span>
@@ -142,12 +160,17 @@ function App() {
                 </div>
                 <span className="text-sm">Add Workout</span>
               </div>
+              <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('smarttips')}>
+                <FaDumbbell size={24} className="mb-1" />
+                <span className="text-sm">Tips</span>
+              </div>
               <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentPage('progress')}>
                 <FaChartLine size={24} className="mb-1" />
                 <span className="text-sm">Progress</span>
               </div>
             </div>
           )}
+
         </div>
       )}
     </>
@@ -155,6 +178,3 @@ function App() {
 }
 
 export default App;
-
-
-
