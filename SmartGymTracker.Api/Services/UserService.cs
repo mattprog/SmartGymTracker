@@ -18,7 +18,9 @@ namespace SmartGymTracker.Api.Services;
         Task<User> UpdatePassword(User user, string newPassword, CancellationToken ct = default);
 
         Task<User> DeleteUserAsync(int UserId, CancellationToken ct = default);
-}
+
+        Task<User> LoginUser(string username, string password, CancellationToken ct = default);
+    }
     public sealed class UserService(IUserClient client) : IUserService
     {
         public async Task<IReadOnlyList<User>> SearchAsync(
@@ -35,7 +37,6 @@ namespace SmartGymTracker.Api.Services;
           (string.IsNullOrWhiteSpace(lastname) || string.Equals(u.LastName, lastname, StringComparison.OrdinalIgnoreCase)) &&
           (string.IsNullOrWhiteSpace(phone_number) || string.Equals(u.PhoneNumber, phone_number, StringComparison.OrdinalIgnoreCase)) &&
           (string.IsNullOrWhiteSpace(dateofbirth) || string.Equals(u.DateOfBirth.ToString(), dateofbirth, StringComparison.OrdinalIgnoreCase)) &&
-          //(string.IsNullOrWhiteSpace(dateofbirth) || u.DateOfBirth.CompareTo(DateOnly.Parse(dateofbirth)) == 0) &&
           (string.IsNullOrWhiteSpace(gender) || string.Equals(u.Gender, gender, StringComparison.OrdinalIgnoreCase))
           ).ToList();
         }
@@ -81,6 +82,14 @@ namespace SmartGymTracker.Api.Services;
 
         return user;
       }
+
+    public async Task<User> LoginUser(
+     string username, string password, CancellationToken ct = default)
+    {
+        var loginUser = await client.LoginUser(username,password, ct);
+
+        return loginUser;
+    }
 }
 
 

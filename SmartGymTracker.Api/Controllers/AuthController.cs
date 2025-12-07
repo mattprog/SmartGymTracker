@@ -25,24 +25,16 @@ public class AuthController : ControllerBase
             return BadRequest("Username and password are required.");
         }
 
-        var users = await _svc.SearchAsync(
-            null,
+        var user = await _svc.LoginUser(
             model.Username,
             model.Password,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             ct
         );
 
-        if (users.Count == 0)
+        if (user == null)
             return Unauthorized("Invalid username or password.");
 
-        //return Ok(new { message = "Login successful", user = users.First() });
-        return Ok("Login successful.");
+        return Ok(user);
     }
 
     [HttpPost("register")]
@@ -95,7 +87,7 @@ public class AuthController : ControllerBase
         
         var result = await _svc.UpdatePassword(users[0], model.Password, ct);
 
-        return Ok(new { message = "Password successfully reset." });
+        return Ok("Password successfully reset.");
     }
 }
 

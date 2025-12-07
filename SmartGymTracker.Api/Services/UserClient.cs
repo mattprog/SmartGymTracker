@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Identity;
 namespace SmartGymTracker.Api.Services;
 
 
-    public interface IUserClient
-    {
+public interface IUserClient
+{
         Task<IReadOnlyList<User>> GetAllAsync(bool forceReload = false, CancellationToken ct = default);
         Task<User> GetUserAsync(int UserId, bool forceReload = false, CancellationToken ct = default);
 
@@ -23,6 +23,8 @@ namespace SmartGymTracker.Api.Services;
         Task<User> UpdatePassword(User user, string newPassword, CancellationToken ct = default);
 
         Task<User> DeleteUserAsync(int UserId, bool forceReload = false, CancellationToken ct = default);
+
+        Task<User> LoginUser(string username, string password, CancellationToken ct = default);
 }
 public sealed class UserClient(HttpClient http) : IUserClient
 {
