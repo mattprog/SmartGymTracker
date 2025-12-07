@@ -5,6 +5,7 @@ using Library.SmartGymTracker.Models;
 using SmartGymTracker.Api.Serialization;
 using MySQL.SmartGymTracker;
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 namespace SmartGymTracker.Api.Services;
 
 
@@ -93,6 +94,13 @@ public sealed class UserClient(HttpClient http) : IUserClient
     {
         var db = new User_DB();
         var data = db.Delete(UserId);
+        return data;
+    }
+
+    public async Task<User> LoginUser(string username, string password, CancellationToken ct = default)
+    {
+        var db = new User_DB();
+        var data = db.Login(username, password);
         return data;
     }
 }

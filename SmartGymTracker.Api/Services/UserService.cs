@@ -6,14 +6,14 @@ namespace SmartGymTracker.Api.Services;
 
     public interface IUserService
     {
-        Task<IReadOnlyList<User>> SearchAsync(string? UserId, string? username, string? password, string? email, string firstname, string? lastname, 
-            string phone_number, string? dateofbirth, string? gender, CancellationToken ct = default);
+        Task<IReadOnlyList<User>> SearchAsync(int? UserId, string? username, string? password, string? email, string? firstname, string? lastname, 
+            string? phone_number, string? dateofbirth, string? gender, CancellationToken ct = default);
         Task<User> GetUserAsync(int UserId, CancellationToken ct = default);
 
-        Task<User> AddUserAsync(string? username, string? password, string? email, string firstname, string? lastname,
-            string phone_number, string? dateofbirth, string? gender, CancellationToken ct = default);
-        Task<User> UpdateUserAsync(int UserId, string? username, string? password, string? email, string firstname, string? lastname,
-            string phone_number, string? dateofbirth, string? gender, CancellationToken ct = default);
+        Task<User> AddUserAsync(string username, string password, string email, string firstname, string? lastname,
+            string phone_number, string dateofbirth, string? gender, CancellationToken ct = default);
+        Task<User> UpdateUserAsync(int UserId, string? username, string? password, string? email, string? firstname, string? lastname,
+            string? phone_number, string? dateofbirth, string? gender, CancellationToken ct = default);
 
         Task<User> UpdatePassword(User user, string newPassword, CancellationToken ct = default);
 
@@ -22,16 +22,21 @@ namespace SmartGymTracker.Api.Services;
     public sealed class UserService(IUserClient client) : IUserService
     {
         public async Task<IReadOnlyList<User>> SearchAsync(
-            string? UserId, string? username, string? password, string? email, string firstname, string? lastname, string phone_number, string? dateofbirth, 
+            int? UserId, string? username, string? password, string? email, string? firstname, string? lastname, string? phone_number, string? dateofbirth, 
            string? gender, CancellationToken ct = default)
         {
             var all = await client.GetAllAsync(false, ct);
 
           return all.Where(u =>
           (string.IsNullOrWhiteSpace(username) || string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)) &&
+          (string.IsNullOrWhiteSpace(password) || string.Equals(u.Password, password, StringComparison.OrdinalIgnoreCase)) &&
           (string.IsNullOrWhiteSpace(email) || string.Equals(u.Email, email, StringComparison.OrdinalIgnoreCase)) &&
           (string.IsNullOrWhiteSpace(firstname) || string.Equals(u.FirstName, firstname, StringComparison.OrdinalIgnoreCase)) &&
-          (string.IsNullOrWhiteSpace(lastname) || string.Equals(u.LastName, lastname, StringComparison.OrdinalIgnoreCase))
+          (string.IsNullOrWhiteSpace(lastname) || string.Equals(u.LastName, lastname, StringComparison.OrdinalIgnoreCase)) &&
+          (string.IsNullOrWhiteSpace(phone_number) || string.Equals(u.PhoneNumber, phone_number, StringComparison.OrdinalIgnoreCase)) &&
+          (string.IsNullOrWhiteSpace(dateofbirth) || string.Equals(u.DateOfBirth.ToString(), dateofbirth, StringComparison.OrdinalIgnoreCase)) &&
+          //(string.IsNullOrWhiteSpace(dateofbirth) || u.DateOfBirth.CompareTo(DateOnly.Parse(dateofbirth)) == 0) &&
+          (string.IsNullOrWhiteSpace(gender) || string.Equals(u.Gender, gender, StringComparison.OrdinalIgnoreCase))
           ).ToList();
         }
 
@@ -43,7 +48,7 @@ namespace SmartGymTracker.Api.Services;
             return user;
         }
         public async Task<User> AddUserAsync(
-          string? username, string? password, string? email, string firstname, string? lastname, string phone_number, string? dateofbirth,
+          string username, string password, string email, string firstname, string? lastname, string phone_number, string dateofbirth,
           string? gender, CancellationToken ct = default)
        {
           var user = await client.AddUserAsync(username, password, email, firstname, lastname, phone_number, dateofbirth,
@@ -52,7 +57,7 @@ namespace SmartGymTracker.Api.Services;
           return user;
        }
        public async Task<User> UpdateUserAsync(
-         int UserId, string? username, string? password, string? email, string firstname, string? lastname, string phone_number, string? dateofbirth,
+         int UserId, string? username, string? password, string? email, string? firstname, string? lastname, string? phone_number, string? dateofbirth,
          string? gender, CancellationToken ct = default)
       {
         var user = await client.UpdateUserAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth,

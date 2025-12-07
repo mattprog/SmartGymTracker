@@ -16,6 +16,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
+    o.SerializerOptions.TypeInfoResolverChain.Insert(0, AuthJsonContext.Default);
     o.SerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
     o.SerializerOptions.TypeInfoResolverChain.Insert(0, UserJsonContext.Default);
 });
@@ -23,7 +24,13 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 builder.Services
     .AddControllers()
     .AddApplicationPart(typeof(AuthController).Assembly)
-    .AddControllersAsServices();
+    .AddControllersAsServices()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, AuthJsonContext.Default);
+        o.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, ExerciseJsonContext.Default);
+        o.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, UserJsonContext.Default);
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -63,13 +70,13 @@ app.MapGet("/api/exercises", async (
 
 app.MapGet("/api/user", async (
     IUserService svc,
-    string? UserId,
+    int? UserId,
     string? username,
     string? password,
     string? email,
-    string firstname,
+    string? firstname,
     string? lastname,
-    string phone_number,
+    string? phone_number,
     string? dateofbirth,
     string? gender,
     CancellationToken ct) =>
@@ -90,45 +97,56 @@ app.MapGet("/api/user/{UserId}", async (
 
 app.MapPost("/api/user", async (
     IUserService svc,
-    string? username,
-    string? password,
-    string? email,
-    string firstname,
-    string? lastname,
-    string phone_number,
-    string? dateofbirth,
-    string? gender,
+    UserRequest request,
     CancellationToken ct) =>
 {
-    var data = await svc.AddUserAsync(username, password, email, firstname, lastname, phone_number, dateofbirth, gender, ct);
+    var data = await svc.AddUserAsync(
+        request.Username,
+        request.Password,
+        request.Email,
+        request.FirstName,
+        request.LastName,
+        request.PhoneNumber,
+        request.DateOfBirth,
+        request.Gender,
+        ct);
+
     return Results.Ok(data);
 });
 
-app.MapPut("/api/user/{UserId}", async (
+app.MapPut("/api/user/{userId:int}", async (
     IUserService svc,
-    int UserId,
-    string? username,
-    string? password,
-    string? email,
-    string firstname,
-    string? lastname,
-    string phone_number,
-    string? dateofbirth,
-    string? gender,
+    int userId,
+    UpdateUserRequest request,
     CancellationToken ct) =>
 {
-    var data = await svc.UpdateUserAsync(UserId, username, password, email, firstname, lastname, phone_number, dateofbirth, gender, ct);
+    var data = await svc.UpdateUserAsync(
+        userId,
+        request.Username,
+        request.Password,
+        request.Email,
+        request.FirstName,
+        request.LastName,
+        request.PhoneNumber,
+        request.DateOfBirth,
+        request.Gender,
+        ct);
+
     return Results.Ok(data);
 });
 
-app.MapDelete("/api/user/{UserId}", async (
+
+
+app.MapDelete("/api/user/{userId:int}", async (
     IUserService svc,
-    int UserId,
+    int userId,
     CancellationToken ct) =>
 {
-    var data = await svc.DeleteUserAsync(UserId, ct);
+    var data = await svc.DeleteUserAsync(userId, ct);
     return Results.Ok(data);
 });
+
+
 
 _ = Task.Run(async () =>
 {

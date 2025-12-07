@@ -9,7 +9,11 @@ namespace SmartGymTracker.Api.Serialization;
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase
 )]
 [JsonSerializable(typeof(List<User>))]
+[JsonSerializable(typeof(User))]
 [JsonSerializable(typeof(UserResponse))]
+[JsonSerializable(typeof(UserRequest))]
+[JsonSerializable(typeof(UpdateUserRequest))]
+
 internal partial class UserJsonContext : JsonSerializerContext
 {
 }

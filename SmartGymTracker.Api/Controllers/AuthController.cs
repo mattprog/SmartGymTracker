@@ -41,7 +41,8 @@ public class AuthController : ControllerBase
         if (users.Count == 0)
             return Unauthorized("Invalid username or password.");
 
-        return Ok(new { message = "Login successful", user = users.First() });
+        //return Ok(new { message = "Login successful", user = users.First() });
+        return Ok("Login successful.");
     }
 
     [HttpPost("register")]
