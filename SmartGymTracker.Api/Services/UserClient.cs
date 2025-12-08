@@ -5,11 +5,12 @@ using Library.SmartGymTracker.Models;
 using SmartGymTracker.Api.Serialization;
 using MySQL.SmartGymTracker;
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 namespace SmartGymTracker.Api.Services;
 
 
-    public interface IUserClient
-    {
+public interface IUserClient
+{
         Task<IReadOnlyList<User>> GetAllAsync(bool forceReload = false, CancellationToken ct = default);
         Task<User> GetUserAsync(int UserId, bool forceReload = false, CancellationToken ct = default);
 
@@ -22,6 +23,8 @@ namespace SmartGymTracker.Api.Services;
         Task<User> UpdatePassword(User user, string newPassword, CancellationToken ct = default);
 
         Task<User> DeleteUserAsync(int UserId, bool forceReload = false, CancellationToken ct = default);
+
+        Task<User> LoginUser(string username, string password, CancellationToken ct = default);
 }
 public sealed class UserClient(HttpClient http) : IUserClient
 {
@@ -93,6 +96,13 @@ public sealed class UserClient(HttpClient http) : IUserClient
     {
         var db = new User_DB();
         var data = db.Delete(UserId);
+        return data;
+    }
+
+    public async Task<User> LoginUser(string username, string password, CancellationToken ct = default)
+    {
+        var db = new User_DB();
+        var data = db.Login(username, password);
         return data;
     }
 }
