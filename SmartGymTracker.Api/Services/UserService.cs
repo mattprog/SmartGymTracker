@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using SmartGymTracker.Api.Models;
 using Library.SmartGymTracker.Models;
 using MySQL.SmartGymTracker;
@@ -25,10 +26,11 @@ namespace SmartGymTracker.Api.Services;
             string? UserId, string? username, string? password, string? email, string firstname, string? lastname, string phone_number, string? dateofbirth, 
            string? gender, CancellationToken ct = default)
         {
-            var all = await client.GetAllAsync(false, ct);
+            var all = await client.GetAllAsync(false, ct) ?? Array.Empty<User>();
 
           return all.Where(u =>
           (string.IsNullOrWhiteSpace(username) || string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)) &&
+          (string.IsNullOrWhiteSpace(password) || string.Equals(u.Password, password, StringComparison.Ordinal)) &&
           (string.IsNullOrWhiteSpace(email) || string.Equals(u.Email, email, StringComparison.OrdinalIgnoreCase)) &&
           (string.IsNullOrWhiteSpace(firstname) || string.Equals(u.FirstName, firstname, StringComparison.OrdinalIgnoreCase)) &&
           (string.IsNullOrWhiteSpace(lastname) || string.Equals(u.LastName, lastname, StringComparison.OrdinalIgnoreCase))

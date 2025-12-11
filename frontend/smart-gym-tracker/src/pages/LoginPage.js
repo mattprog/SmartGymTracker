@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { FaDumbbell } from "react-icons/fa";
+import { login } from "../services/AuthService";
 
-const LoginPage = ({ setCurrentPage }) => {
+const LoginPage = ({ setCurrentPage, onLoginSuccess }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -16,17 +17,23 @@ const LoginPage = ({ setCurrentPage }) => {
     setMessage("");
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      if (username === "admin" && password === "password") {
-        setCurrentPage("adminDashboard"); // admin login
-        
-      }   else if (username === "matthew") {
-        setMessage("Invalid username or password.");
-      } else {
-        setCurrentPage("dashboard"); // any other login > user dashboard
+    try {
+      const response = await login({ username, password });
+      if (response?.error) {
+        setMessage(response.error);
+        return;
       }
-    }, 1000);
+      if (response?.user) {
+        onLoginSuccess?.(response.user);
+      } else {
+        setMessage("Unexpected response from server.");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Unable to login. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

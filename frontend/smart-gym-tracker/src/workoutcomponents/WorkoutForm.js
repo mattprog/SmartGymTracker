@@ -1,12 +1,30 @@
 import React from "react";
 
 const WorkoutForm = ({
-  workout, setWorkout, exerciseType, setExerciseType,
-  muscle, setMuscle, exerciseName, setExerciseName,
-  setNumber, setSetNumber, weight, setWeight,
-  reps, setReps, cardioDuration, setCardioDuration,
-  cardioDistance, setCardioDistance, sampleMuscles,
-  handleAddSet, handleAddWorkout
+  workout,
+  setWorkout,
+  exerciseType,
+  setExerciseType,
+  muscle,
+  setMuscle,
+  exerciseName,
+  setExerciseName,
+  setNumber,
+  setSetNumber,
+  weight,
+  setWeight,
+  reps,
+  setReps,
+  cardioDuration,
+  setCardioDuration,
+  cardioDistance,
+  setCardioDistance,
+  notes,
+  setNotes,
+  muscleOptions,
+  musclesLoading,
+  handleAddSet,
+  handleAddWorkout,
 }) => {
   const inputStyle = { padding: "6px 10px", margin: "5px 0", borderRadius: "5px", border: "1px solid #ccc", width: "150px" };
   const buttonStyle = { padding: "8px 16px", margin: "10px 5px 10px 0", borderRadius: "5px", backgroundColor: "#007bff", color: "white", border: "none", cursor: "pointer" };
@@ -54,7 +72,13 @@ const WorkoutForm = ({
             <label>Muscle Group:</label>
             <select value={muscle} onChange={(e) => setMuscle(e.target.value)} style={inputStyle}>
               <option value="">Select Muscle</option>
-              {sampleMuscles.map((m) => <option key={m.MuscleId} value={m.MuscleId}>{m.Name}</option>)}
+              {musclesLoading && <option>Loading...</option>}
+              {!musclesLoading &&
+                muscleOptions.map((m) => (
+                  <option key={m.muscleId ?? m.MuscleId} value={m.muscleId ?? m.MuscleId}>
+                    {m.name ?? m.Name}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -84,9 +108,23 @@ const WorkoutForm = ({
             </div>
           )}
 
+          <div style={{ marginTop: "10px" }}>
+            <label>Notes:</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              style={{ ...inputStyle, width: "100%", minHeight: "60px" }}
+              placeholder="Optional notes"
+            />
+          </div>
+
           <div>
-            <button onClick={handleAddSet} style={buttonStyle}>Add Set</button>
-            <button onClick={handleAddWorkout} style={buttonStyle}>Add Workout</button>
+            <button onClick={handleAddSet} style={buttonStyle}>
+              Add Set
+            </button>
+            <button onClick={handleAddWorkout} style={buttonStyle}>
+              Add Workout
+            </button>
           </div>
         </div>
       )}
