@@ -7,7 +7,6 @@ const initialMessages = [
   { id: 4, title: "New Tip", content: "Try stretching 5 minutes before every session." },
   { id: 5, title: "New Tip", content: "Eat protein rich foods to reach goal weight!" },
   { id: 6, title: "Welcome!", content: "You're all set up with SmartGymTracker." },
-  ,
 ];
 
 export default function SmartTips() {

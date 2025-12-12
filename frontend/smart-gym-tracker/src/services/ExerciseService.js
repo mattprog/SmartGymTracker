@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:5000/api/exercises"; // adjust if needed
+const CORE_API = process.env.REACT_APP_CORE_API ?? "http://localhost:5074/api";
+const API_BASE = `${CORE_API}/exercises`; // adjust if needed
 
 export async function fetchExercises(queryParams = {}) {
   // queryParams can be { q, muscle, equipment, category }

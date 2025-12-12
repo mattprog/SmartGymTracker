@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { resetPassword } from "../services/AuthService"; // make sure this exists
+import { resetPassword } from "../services/AuthService";
 
 const ForgotPassword = ({ setCurrentPage }) => {
   const [email, setEmail] = useState("");
@@ -8,6 +8,7 @@ const ForgotPassword = ({ setCurrentPage }) => {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [countdown, setCountdown] = useState(60);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let timer;
@@ -19,18 +20,23 @@ const ForgotPassword = ({ setCurrentPage }) => {
 
   const handleSend = async () => {
     if (!email || !newPassword) {
-      return alert("Please enter both email and new password");
+      setError("Please enter both email and a new password.");
+      return;
     }
 
+    setError("");
     setLoading(true);
     try {
-      await resetPassword(email, newPassword);
-      alert(`Password successfully reset for ${email}`);
+      const res = await resetPassword({ email, password: newPassword });
+      if (res?.error) {
+        setError(res.error);
+        return;
+      }
       setSent(true);
       setCountdown(60);
     } catch (err) {
       console.error(err);
-      alert("Failed to reset password");
+      setError("Failed to reset password.");
     } finally {
       setLoading(false);
     }
@@ -55,6 +61,12 @@ const ForgotPassword = ({ setCurrentPage }) => {
         <p className="text-gray-700 mb-6">
           Enter the email associated with your account and your new password.
         </p>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 text-sm rounded p-3 mb-4">
+            {error}
+          </div>
+        )}
 
         <input
           type="email"

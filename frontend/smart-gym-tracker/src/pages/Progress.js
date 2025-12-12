@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import GoalCard from "../goalcomponents/GoalCard";
 import CompletedGoals from "../goalcomponents/CompletedGoals";
 import GoalForm from "../goalcomponents/GoalForm";
-import { FaTrophy } from "react-icons/fa";
 
 export default function Progress() {
 

@@ -1,37 +1,105 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import "chart.js/auto";
 import { FaDumbbell, FaChartLine, FaLightbulb, FaEnvelope, FaWeight } from "react-icons/fa";
+import { fetchWorkouts } from "../services/WorkoutsService";
+import { fetchBiometrics } from "../services/BiometricsService";
 
-export default function Dashboard() {
-  const [userName] = useState("User");
+const getWeekStart = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+};
 
+export default function Dashboard({ user }) {
+  const userName = user?.FirstName ?? user?.firstName ?? user?.Username ?? user?.username ?? "User";
+  const userId = user?.UserId ?? user?.userId ?? null;
+  const [workouts, setWorkouts] = useState([]);
+  const [biometrics, setBiometrics] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!userId) return;
+    setLoading(true);
+    Promise.all([fetchWorkouts(userId), fetchBiometrics(userId)])
+      .then(([workoutData, bioData]) => {
+        setWorkouts(workoutData ?? []);
+        setBiometrics(bioData ?? []);
+      })
+      .finally(() => setLoading(false));
+  }, [userId]);
 
+  const workoutsPerWeek = useMemo(() => {
+    const grouped = new Map();
+    workouts.forEach((w) => {
+      const rawDate = w.workoutStart ?? w.WorkoutStart;
+      if (!rawDate) return;
+      const start = getWeekStart(rawDate);
+      const key = start.toISOString();
+      const entry = grouped.get(key) || {
+        label: `Week of ${start.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`,
+        count: 0,
+        date: start,
+      };
+      entry.count += 1;
+      grouped.set(key, entry);
+    });
+    const sorted = Array.from(grouped.values()).sort((a, b) => a.date - b.date);
+    if (sorted.length === 0) {
+      const now = new Date();
+      return Array.from({ length: 4 }).map((_, idx) => {
+        const start = new Date(now);
+        start.setDate(start.getDate() - (3 - idx) * 7);
+        return {
+          label: `Week of ${start.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`,
+          count: 0,
+        };
+      });
+    }
+    return sorted.slice(-4);
+  }, [workouts]);
 
-  // Mock data
-  const totalWorkouts = 26;
-  const goals =  [
-    { id: 1, type: "weight", name: "Reach 125 lbs body weight", target: 125, current: 112 },
-    { id: 2, type: "strength", name: "Bench Press 315 lbs", target: 315, current: 250 },
-    { id: 3, type: "frequency", name: "Complete 5 workouts per week", target: 5, current: 3, freqUnit: "week" },
-    { id: 4, type: "cardio", name: "Run 6 miles", target: 6, current: 3, durationUnit: "miles" },
-  ];
-  const workoutsPerWeek = [
-    { week: "Week 1", count: 5 },
-    { week: "Week 2", count: 7 },
-    { week: "Week 3", count: 6 },
-    { week: "Week 4", count: 8 },
-  ];
-  const tips = [
-    "Stay hydrated!",
-    "Consistently add 2.5 lbs to bench to reach your 315 lb goal!",
-    "Eat protein rich foods to reach goal weight!",
-  ];
+  const weightTrend = useMemo(() => {
+    const sorted = [...biometrics]
+      .filter((b) => b.dateEntered || b.DateEntered)
+      .sort((a, b) => new Date(a.dateEntered ?? a.DateEntered) - new Date(b.dateEntered ?? b.DateEntered));
+    return sorted.slice(-4).map((entry) => ({
+      week: new Date(entry.dateEntered ?? entry.DateEntered).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      }),
+      weight: entry.weight ?? entry.Weight ?? 0,
+    }));
+  }, [biometrics]);
+
+  const totalWorkouts = workouts.length;
+  const latestWeight = biometrics.length ? biometrics[biometrics.length - 1].weight ?? biometrics[biometrics.length - 1].Weight : null;
+  const earliestWeight = biometrics.length ? biometrics[0].weight ?? biometrics[0].Weight : null;
+  const goalStatusMessage = latestWeight && earliestWeight
+    ? `${(latestWeight - earliestWeight).toFixed(1)} lbs gained since your first entry.`
+    : "Log biometrics to track progress!";
+
+  const tips = weightTrend.length > 0
+    ? [
+        `Your latest recorded weight is ${weightTrend[weightTrend.length - 1].weight} lbs. Keep up the consistency!`,
+        "Schedule your next workout now to keep the streak alive.",
+      ]
+    : ["Once you add biometrics, personalized tips will appear here."];
+
   const messages = [
-    "Welcome back!",
-    "Don't forget to log your workouts today.",
+    loading ? "Loading your stats..." : "Data synced from the server.",
+    "Remember to log every workout to keep charts accurate.",
   ];
+
+  if (!userId) {
+    return (
+      <div className="flex-1 p-6">
+        <h1 className="text-3xl font-extrabold text-gray-800 mb-4">Dashboard</h1>
+        <p className="text-gray-700">Log in to view personalized stats.</p>
+      </div>
+    );
+  }
 
 
 
@@ -40,7 +108,7 @@ export default function Dashboard() {
 
   // Chart data
   const data = {
-    labels: workoutsPerWeek.map((w) => w.week),
+    labels: workoutsPerWeek.map((w) => w.label),
     datasets: [
       {
         label: "Workouts",
@@ -69,16 +137,6 @@ export default function Dashboard() {
     },
     maintainAspectRatio: false,
   };
-
-
-
-  // New mock weight trend (lbs)
-  const weightTrend = [
-    { week: "Week 1", weight: 106 },
-    { week: "Week 2", weight: 110 },
-    { week: "Week 3", weight: 108.2 },
-    { week: "Week 4", weight: 112 },
-  ];
 
 
 
@@ -125,22 +183,6 @@ export default function Dashboard() {
     maintainAspectRatio: false,
   };
 
-
-
-
-  // Pick first incomplete goal for dashboard quick status
-  const incompleteGoal = goals.find((g) => g.current < g.target);
-  let goalStatusMessage = "All goals completed! 🎉";
-  if (incompleteGoal) {
-    let unit = "";
-    if (incompleteGoal.type === "weight" || incompleteGoal.type === "strength") unit = "lbs";
-    else if (incompleteGoal.type === "cardio") unit = incompleteGoal.durationUnit;
-    else if (incompleteGoal.type === "frequency") unit = "workouts";
-
-    const remaining = incompleteGoal.target - incompleteGoal.current;
-    goalStatusMessage = `${remaining} ${unit} left until your ${incompleteGoal.type} goal is completed! Keep it up! 🎉`;
-  }
-
   return (
     <div className="overflow-auto flex-1 p-4 space-y-6 pb-12">
       {/* Dashboard headings */}
@@ -158,7 +200,7 @@ export default function Dashboard() {
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center justify-center w-52 hover:scale-105 transform transition duration-300 text-center">
           <FaDumbbell size={36} className="text-blue-600 mb-2" />
           <h2 className="text-xl font-bold">{totalWorkouts}</h2>
-          <p>Total Workouts This Month</p>
+          <p>Total Logged Workouts</p>
         </div>
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center justify-center w-72 hover:scale-105 transform transition duration-300 text-center">
           <FaChartLine size={36} className="text-green-600 mb-2" />
@@ -172,7 +214,7 @@ export default function Dashboard() {
 
       {/* Workouts Bar Chart */}
       <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-2xl mx-auto hover:shadow-lg transition duration-300">
-        <h3 className="text-lg font-bold mb-4">Workouts Per Week (November)</h3>
+        <h3 className="text-lg font-bold mb-4">Workouts Per Week</h3>
         <div style={{ height: "250px" }}>
           <Bar data={data} options={options} />
         </div>

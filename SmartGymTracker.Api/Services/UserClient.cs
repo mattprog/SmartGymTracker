@@ -29,13 +29,18 @@ public sealed class UserClient(HttpClient http) : IUserClient
     private IReadOnlyList<User>? _cache;
     private DateTimeOffset _cachedAt = DateTimeOffset.MinValue;
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(12);
+    private void InvalidateCache()
+    {
+        _cache = null;
+        _cachedAt = DateTimeOffset.MinValue;
+    }
     
     public async Task<IReadOnlyList<User>> GetAllAsync(bool forceReload = false, CancellationToken ct = default)
     {
         if (!forceReload && _cache is not null && DateTimeOffset.UtcNow - _cachedAt < CacheTtl)
             return _cache;
         var db = new User_DB();
-        var data = db.GetAll();
+        var data = db.GetAll() ?? new List<User>();
         _cache = data;
         _cachedAt = DateTimeOffset.UtcNow;
         return _cache;
@@ -60,6 +65,7 @@ public sealed class UserClient(HttpClient http) : IUserClient
         user.Gender = gender ?? string.Empty;
         var db = new User_DB();
         var data = db.Add(user);
+        InvalidateCache();
         return data;
     }
 
@@ -78,6 +84,7 @@ public sealed class UserClient(HttpClient http) : IUserClient
         user.Gender = gender ?? string.Empty;
         var db = new User_DB();
         var data = db.Update(user);
+        InvalidateCache();
         return data;
     }
     
@@ -86,6 +93,7 @@ public sealed class UserClient(HttpClient http) : IUserClient
         user.Password = newPassword ?? string.Empty;
         var db = new User_DB();
         var data = db.Update(user);
+        InvalidateCache();
         return data;
     }
 
@@ -93,6 +101,7 @@ public sealed class UserClient(HttpClient http) : IUserClient
     {
         var db = new User_DB();
         var data = db.Delete(UserId);
+        InvalidateCache();
         return data;
     }
 }

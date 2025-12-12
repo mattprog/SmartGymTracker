@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Library.SmartGymTracker\Library.SmartGymTracker.csproj" />
-    <ProjectReference Include="..\..\MySQL.SmartGymTracker\MySQL.SmartGymTracker.csproj" />
+    <ProjectReference Include="..\Library.SmartGymTracker\Library.SmartGymTracker.csproj" />
+    <ProjectReference Include="..\MySQL.SmartGymTracker\MySQL.SmartGymTracker.csproj" />
   </ItemGroup>
 
 </Project>

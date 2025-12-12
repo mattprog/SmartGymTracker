@@ -14,7 +14,18 @@ import Dashboard from './pages/Dashboard';
 import SmartTips from './pages/SmartTips';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard'); 
+  const [currentPage, setCurrentPage] = useState('login');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    const privilege = user?.Privilege ?? user?.privilege ?? null;
+    if (privilege === 'Admin' || privilege === 1) {
+      setCurrentPage('adminDashboard');
+    } else {
+      setCurrentPage('dashboard');
+    }
+  };
 
   const displayBars = ![
     "login",
@@ -25,13 +36,21 @@ function App() {
     "admin"
   ].includes(currentPage);
 
-  const handleLogout = () => setCurrentPage("login");
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCurrentPage("login");
+  };
 
   return (
     <>
       {["login", "registration", "forgotPassword"].includes(currentPage) ? (
         <div className="min-h-screen">
-          {currentPage === "login" && <LoginPage setCurrentPage={setCurrentPage} />}
+          {currentPage === "login" && (
+            <LoginPage
+              setCurrentPage={setCurrentPage}
+              onLoginSuccess={handleLoginSuccess}
+            />
+          )}
           {currentPage === "registration" && <RegistrationPage setCurrentPage={setCurrentPage} />}
           {currentPage === "forgotPassword" && <ForgotPassword setCurrentPage={setCurrentPage} />}
           
@@ -57,7 +76,11 @@ function App() {
            {/* Profile Page (fullscreen, not scrollable) */}
           {currentPage === 'profile' && (
           <div className="flex-1 bg-blue-600 flex flex-col">
-          <Profile setCurrentPage={setCurrentPage} />
+          <Profile
+            setCurrentPage={setCurrentPage}
+            user={currentUser}
+            onUserUpdate={setCurrentUser}
+          />
           </div>
             )}
           
@@ -66,12 +89,12 @@ function App() {
 
           {/* Main Content - scrollable */}
           <div className="flex-1 overflow-auto pt-16 pb-16 px-6">
-            {currentPage === 'dashboard' && <Dashboard />}
+            {currentPage === 'dashboard' && <Dashboard user={currentUser} />}
       
-            {currentPage === 'workout' && <WorkoutPage />}
-            {currentPage === 'biometric' && <BiometricPage />}
-            {currentPage === 'progress' && <Progress />}
-            {currentPage === 'smarttips' && <SmartTips />}
+            {currentPage === 'workout' && <WorkoutPage user={currentUser} />}
+            {currentPage === 'biometric' && <BiometricPage user={currentUser} />}
+            {currentPage === 'progress' && <Progress user={currentUser} />}
+            {currentPage === 'smarttips' && <SmartTips user={currentUser} />}
 
             {currentPage === 'admin' && (
               <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6 w-full">

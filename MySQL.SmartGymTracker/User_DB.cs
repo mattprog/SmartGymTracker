@@ -19,7 +19,7 @@ namespace MySQL.SmartGymTracker
         {
             if (id <= 0)
                 return null;
-            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE userId = @userId";
+            string sql = "SELECT userId, username, password, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE userId = @userId";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", id)
@@ -33,7 +33,7 @@ namespace MySQL.SmartGymTracker
 
         public List<User>? GetAll()
         {
-            string sql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users";
+            string sql = "SELECT userId, username, password, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users";
             var dbreturn = db.ExecuteSelect(sql, new List<MySqlParameter>());
             List<User> users = DataTableToList(dbreturn);
             if (users.Count != 0)
@@ -56,7 +56,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get added record
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE username = @username;";
+            string selectSql = "SELECT userId, username, password, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE username = @username;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", user.Username)
@@ -87,7 +87,7 @@ namespace MySQL.SmartGymTracker
             db.ExecuteNonQuery(sql, parametersList);
 
             // Get updated record
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE userId = @userId;";
+            string selectSql = "SELECT userId, username, password, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", user.UserId)
@@ -109,7 +109,7 @@ namespace MySQL.SmartGymTracker
         {
             if(userId <= 0)
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE userId = @userId;";
+            string selectSql = "SELECT userId, username, password, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE userId = @userId;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@userId", userId)
@@ -137,7 +137,7 @@ namespace MySQL.SmartGymTracker
         {
             if(username == "" || password == "")
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE username = @username AND password = @password AND active = TRUE;";
+            string selectSql = "SELECT userId, username, password, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE username = @username AND password = @password AND active = TRUE;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", username),
@@ -164,6 +164,7 @@ namespace MySQL.SmartGymTracker
                 {
                     UserId = Convert.ToInt32(row["userId"]),
                     Username = Convert.ToString(row["username"]) ?? "",
+                    Password = Convert.ToString(row["password"]) ?? "",
                     FirstName = Convert.ToString(row["firstName"]) ?? "",
                     LastName = Convert.ToString(row["lastName"]) ?? "",
                     Email = Convert.ToString(row["email"]) ?? "",
