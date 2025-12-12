@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:5074/api/auth";
+const CORE_API = process.env.REACT_APP_CORE_API ?? "http://localhost:5074/api";
+const API_BASE = `${CORE_API}/auth`;
 
 export async function login({ username, password }) {
   try {

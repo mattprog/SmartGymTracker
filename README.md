@@ -87,5 +87,3 @@ Smart Gym Tracker is a web-based fitness tracking application that lets users lo
 
 ## Known Bugs
 * Currently none at this time, all code builds.
-* Frontend and database work based on tests performed with mock data.
-* Backend not fully operational at this time.

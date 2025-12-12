@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartGymTracker.Metrics.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ff5d186810b429e6d4333950869c807ba0d10edd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a9cc3dd99a5896688051b06c25f78bf7efffe35")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartGymTracker.Metrics.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartGymTracker.Metrics.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

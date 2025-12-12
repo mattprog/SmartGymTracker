@@ -1,12 +1,22 @@
-const API_BASE = "http://localhost:5000/api/biometrics";
+const METRICS_API = process.env.REACT_APP_METRICS_API ?? "http://localhost:5153/api";
+const API_BASE = `${METRICS_API}/biometrics`;
+
+const jsonOrThrow = async (res) => {
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Biometrics request failed");
+  }
+  return res.json();
+};
 
 export async function fetchBiometrics(userId) {
   try {
     const url = userId ? `${API_BASE}?userId=${userId}` : API_BASE;
     const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch biometrics");
-    const data = await res.json();
-    return data; // expected: array of biometrics
+    const data = await jsonOrThrow(res);
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data.data)) return data.data;
+    return [];
   } catch (err) {
     console.error(err);
     return [];
@@ -20,11 +30,19 @@ export async function postBiometrics(bioData) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(bioData),
     });
-    if (!res.ok) throw new Error("Failed to post biometrics");
-    const data = await res.json();
-    return data;
+    return await jsonOrThrow(res);
   } catch (err) {
     console.error(err);
-    return null;
+    return { error: err.message };
+  }
+}
+
+export async function deleteBiometric(id) {
+  try {
+    const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    return await jsonOrThrow(res);
+  } catch (err) {
+    console.error(err);
+    return { error: err.message };
   }
 }

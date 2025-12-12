@@ -38,10 +38,10 @@ public class AuthController : ControllerBase
             ct
         );
 
-        if (users.Count == 0)
-            return Unauthorized("Invalid username or password.");
+        if (users is null || users.Count == 0)
+            return Unauthorized("You need to sign up!");
 
-        return Ok(new { message = "Login successful", user = users.First() });
+        return Ok(new AuthResponse("Login successful", users.First()));
     }
 
     [HttpPost("register")]
@@ -94,7 +94,7 @@ public class AuthController : ControllerBase
         
         var result = await _svc.UpdatePassword(users[0], model.Password, ct);
 
-        return Ok(new { message = "Password successfully reset." });
+        return Ok(new AuthResponse("Password successfully reset.", users[0]));
     }
 }
 
@@ -121,3 +121,5 @@ public class PasswordResetRequest
     public string Email { get; set; } = default!;
     public string Password { get; set; } = default!;
 }
+
+public record AuthResponse(string Message, Library.SmartGymTracker.Models.User User);

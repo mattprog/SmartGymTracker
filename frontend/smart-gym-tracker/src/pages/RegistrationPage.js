@@ -16,6 +16,7 @@ const RegistrationPage = ({ setCurrentPage }) => {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e) => {
@@ -29,25 +30,30 @@ const RegistrationPage = ({ setCurrentPage }) => {
     }
 
     setError("");
+    setLoading(true);
     try {
       const res = await register({
-        Username: formData.username,
-        Password: formData.password,
-        Email: formData.email,
-        FirstName: formData.firstname,
-        LastName: formData.lastname,
-        PhoneNumber: formData.phone,
-        DateOfBirth: formData.dateofbirth,
-        Gender: "", // optional
+        username: formData.username,
+        password: formData.password,
+        email: formData.email,
+        firstName: formData.firstname,
+        lastName: formData.lastname,
+        phoneNumber: formData.phone,
+        dateOfBirth: formData.dateofbirth,
+        gender: "",
       });
 
-      if (res) {
+      if (res?.error) {
+        setError(res.error);
+      } else if (res) {
         setShowSuccess(true);
       } else {
         setError("Registration failed.");
       }
     } catch (err) {
       setError(err.message || "Registration failed.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -215,9 +221,10 @@ const RegistrationPage = ({ setCurrentPage }) => {
 
         <button
           onClick={handleRegister}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+          className="bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-60"
+          disabled={loading}
         >
-          Register
+          {loading ? "Registering..." : "Register"}
         </button>
       </div>
 
