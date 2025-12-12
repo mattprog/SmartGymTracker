@@ -137,7 +137,7 @@ namespace MySQL.SmartGymTracker
         {
             if(username == "" || password == "")
                 return null;
-            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel FROM users WHERE username = @username AND password = @password AND active = TRUE;";
+            string selectSql = "SELECT userId, username, firstName, lastName, email, phoneNumber, dateOfBirth, gender, privilegeLevel, active FROM users WHERE username = @username AND password = @password AND active = TRUE;";
             var parameters = new List<MySqlParameter>
             {
                 new MySqlParameter("@username", username),
